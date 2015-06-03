@@ -209,7 +209,7 @@ public class JGraphs extends JPanel
 	    fout.println("file.write('Gamma is ' + str(gamma) + '\\n')");
 	    fout.println("");
 	    fout.println("def SNF():");
-	    fout.println("	L = copy(Laplacian)");
+	    fout.println("	L = - D.adjacency_matrix()");
 	    fout.println("	for i in range(n):");
 	    fout.println("		L[i,i] = 0");
 	    fout.println("		for j in range(n):");
@@ -232,6 +232,7 @@ public class JGraphs extends JPanel
 	    fout.println("");
 	    fout.println("from subprocess import call");
 	    fout.println("call(['emacs','" + cadena + ".txt'])");
+        fout.println("call(['open','" + cadena + ".txt'])");
 				
 	}catch (Exception e) {
 	    e.printStackTrace();
@@ -252,10 +253,11 @@ public class JGraphs extends JPanel
 	    String osname = System.getProperty("os.name");
 	    //System.out.println(osname);
 	    if(osname.toLowerCase().indexOf("mac")!=-1){
-		String command = "sage " + cadena + ".sage"; 
-		//command = command.trim(); 
-		Runtime rt = Runtime.getRuntime(); 
-		Process proc = rt.exec( command );
+            System.out.println("Usando mac");
+            String command = "sage " + cadena + ".sage";
+            //command = command.trim();
+            Runtime rt = Runtime.getRuntime();
+            Process proc = rt.exec( command );
 	    }
 	    Runtime.getRuntime().exec("sage " + cadena + ".sage");
 	    //Runtime.getRuntime().exec("notepad " + cadena + ".txt");
