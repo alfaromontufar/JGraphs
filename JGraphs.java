@@ -211,24 +211,6 @@ public class JGraphs extends JPanel
 					if(nodos.get(i).d == false)
 						if(nodos.get(nodos.get(i).list.get(j)).d == false)
 							fout.println("			\\draw  (" + i + ") edge[->] (" + nodos.get(i).list.get(j) + ");");
-							//g.drawLine(nodos.get(i).x,nodos.get(i).y,nodos.get(nodos.get(i).list.get(j)).x,nodos.get(nodos.get(i).list.get(j)).y);
-			
-			/* fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println("");
-			fout.println(""); */
 			
 			fout.println("		\\end{tikzpicture}");
 			fout.println("	\\end{center}");
