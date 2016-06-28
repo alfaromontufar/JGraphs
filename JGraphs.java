@@ -210,7 +210,7 @@ public class JGraphs extends JPanel
 				for( int j=0; j<nodos.get(i).list.size(); j++ )
 					if(nodos.get(i).d == false)
 						if(nodos.get(nodos.get(i).list.get(j)).d == false)
-							fout.println("			\\draw[edge]  (" + i + ") -> (" + nodos.get(i).list.get(j) + ");");
+							fout.println("			\\draw  (" + i + ") edge[->] (" + nodos.get(i).list.get(j) + ");");
 							//g.drawLine(nodos.get(i).x,nodos.get(i).y,nodos.get(nodos.get(i).list.get(j)).x,nodos.get(nodos.get(i).list.get(j)).y);
 			
 			/* fout.println("");
