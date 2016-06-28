@@ -193,7 +193,7 @@ public class JGraphs extends JPanel
 			fout.println( "\\usepackage{tikz}");
 			fout.println("\\begin{document} ");
 			fout.println("	\\begin{center}");
-			fout.println("		\\begin{tikzpicture}[scale=1]");
+			fout.println("		\\begin{tikzpicture}[scale=0.02]");
 			fout.println("		\\tikzstyle{every node}=[minimum width=0pt, inner sep=1pt, circle]");
 			
 			int w=getSize ( ).width;
