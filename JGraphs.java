@@ -183,11 +183,14 @@ public class JGraphs extends JPanel
     }
 	
 	public void toLaTeX (){
-		String cadena = text.getText();
+		String dirName = "files";
+		File dir = new File (dirName);
+		String cadena = text.getText() + ".tex";
+		File archivo = new File(dir,cadena);
 		FileWriter file = null;
 		PrintWriter fout = null;
 		try{
-			file = new FileWriter(cadena + ".tex");
+			file = new FileWriter(archivo);
 			fout = new PrintWriter(file);
 			fout.println("\\documentclass[11pt,twoside]{amsart}");
 			fout.println( "\\usepackage{tikz}");
@@ -229,11 +232,14 @@ public class JGraphs extends JPanel
 	}
 
     public void createFile (){
-		String cadena = text.getText();
+		String dirName = "files";
+		File dir = new File (dirName);
+		String cadena = text.getText() + ".sage";
+		File archivo = new File(dir,cadena);
 		FileWriter file = null;
 		PrintWriter fout = null;
 		try{
-			file = new FileWriter(cadena + ".sage");
+			file = new FileWriter(archivo);
 			fout = new PrintWriter(file);
 			fout.println( "D = " + graph2string() );
 			fout.println("");
