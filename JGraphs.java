@@ -15,24 +15,40 @@ public class JGraphs extends JPanel
     private int cx, cy;
     private int arrowH = 5, arrowW = 15; // altura y anchura de la flecha
     private final int nz=6; //node size
+	
+	// Declaración de Menu
+	private JMenuBar barraMenu = new JMenuBar();
+	private JMenu menuExportar = new JMenu("Export to");
+	private JMenuItem itemLaTex = new JMenuItem("To LaTeX");
+	private JMenu menuCalcular = new JMenu("Compute");
+	private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
+	
+	// Declaración de botones
     private JButton buttonV = new JButton("Vertex");
     private JButton buttonE = new JButton("Edge");
     private JButton buttonM = new JButton("Move");
     private JButton buttonC = new JButton("Clear");
     private JButton buttonD = new JButton("Delete");
-    private JTextField text = new JTextField("ProjectName",20);
-    private JButton buttonG = new JButton("Generate");
-	private JButton buttonLaTeX = new JButton("toLaTeX");
+	
+	// Declaración de texto
+	private JTextField text = new JTextField("ProjectName",20);
+	
     private int mainflag=0, colorvflag=-1, binvflag=0, nodeflag;
 		
     public JGraphs ( ) {
+		barraMenu.add(menuExportar);
+		menuExportar.add(itemLaTex);
+		itemLaTex.addActionListener(this);
+		barraMenu.add(menuCalcular);
+		menuCalcular.add(itemCriticalIdeals);
+		itemCriticalIdeals.addActionListener(this);
+		add(barraMenu);
+		
 		buttonV.addActionListener(this);
 		buttonE.addActionListener(this);
 		buttonM.addActionListener(this);
 		buttonC.addActionListener(this);
 		buttonD.addActionListener(this);
-		buttonG.addActionListener(this);
-		buttonLaTeX.addActionListener(this);
 		add(buttonV);
 		add(buttonE);
 		add(buttonM);
@@ -40,8 +56,6 @@ public class JGraphs extends JPanel
 		add(buttonD);
 		add(text);
 		text.setEditable(true);
-		add(buttonG);
-		add(buttonLaTeX);
 		nodos = new LinkedList<Nodo>();
 		addMouseListener (this);
 		addMouseMotionListener (this);
@@ -196,8 +210,8 @@ public class JGraphs extends JPanel
 			fout.println( "\\usepackage{tikz}");
 			fout.println("\\begin{document} ");
 			fout.println("	\\begin{center}");
-			fout.println("		\\begin{tikzpicture}[scale=0.02]");
-			fout.println("		\\tikzstyle{every node}=[minimum width=0pt, inner sep=1pt, circle]");
+			fout.println("		\\begin{tikzpicture}[scale=2,thick]");
+			fout.println("		\\tikzstyle{every node}=[minimum width=0pt, inner sep=2pt, circle]");
 			
 			int w=getSize ( ).width;
 			int h=getSize ( ).height;
@@ -206,7 +220,7 @@ public class JGraphs extends JPanel
 			
 			for(int i=0; i<nodos.size(); i++){
 				if(nodos.get(i).d == false)
-					fout.println("			\\draw (" + (nodos.get(i).x - cx) + "," + (nodos.get(i).y -cy) + ") node[draw, fill=gray] (" + i + ") {};");
+					fout.println("			\\draw (" + (float)  (nodos.get(i).x - cx)/100 + "," + (float) (cy - nodos.get(i).y)/100 + ") node[draw] (" + i + ") { \\tiny " + i + "};");
 			}
 			
 			for( int i=0; i<nodos.size(); i++ )	
@@ -300,7 +314,7 @@ public class JGraphs extends JPanel
 			}
 		}
     }
-		
+	
     public void runcsp() {
 			
 		try{
@@ -482,15 +496,16 @@ public class JGraphs extends JPanel
 		else if (s == buttonD){
 			mainflag=3;
 		}
-		else if (s == buttonG){
+		else if (s == itemCriticalIdeals){
 			
 			createFile();
-			runcsp();
+			//runcsp();
 
 		}
-		else if (s == buttonLaTeX){
+		else if (s == itemLaTex){
 			
 			toLaTeX();
+			runLaTeX();
 
 		}
 		else if (s == text) {
