@@ -505,7 +505,6 @@ public class JGraphs extends JPanel
 		else if (s == itemLaTex){
 			
 			toLaTeX();
-			runLaTeX();
 
 		}
 		else if (s == text) {
