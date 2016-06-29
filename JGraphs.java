@@ -18,7 +18,11 @@ public class JGraphs extends JPanel
 	
 	// Declaración de Menu
 	private JMenuBar barraMenu = new JMenuBar();
-	private JMenu menuExportar = new JMenu("Export to");
+    private JMenu menuMenu = new JMenu("Menu");
+	private JMenu menuGraphType = new JMenu("Graph type");
+    private JMenuItem itemGraph = new JMenuItem("Graph");
+    private JMenuItem itemDigraph = new JMenuItem("Digraph");
+    private JMenu menuExportar = new JMenu("Export to");
 	private JMenuItem itemLaTex = new JMenuItem("To LaTeX");
 	private JMenu menuCalcular = new JMenu("Compute");
 	private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
@@ -34,12 +38,21 @@ public class JGraphs extends JPanel
 	private JTextField text = new JTextField("ProjectName",20);
 	
     private int mainflag=0, colorvflag=-1, binvflag=0, nodeflag;
+    private int graphtype = 1; // 0 -> Graph, 1 -> Digraph
 		
     public JGraphs ( ) {
-		barraMenu.add(menuExportar);
-		menuExportar.add(itemLaTex);
+        barraMenu.add(menuMenu);
+        menuMenu.add(menuGraphType);
+        menuGraphType.add(itemGraph);
+        itemGraph.addActionListener(this);
+        itemGraph.setArmed(false);
+        menuGraphType.add(itemDigraph);
+        itemDigraph.addActionListener(this);
+        itemDigraph.setArmed(true);
+        menuMenu.add(menuExportar);
+        menuExportar.add(itemLaTex);
 		itemLaTex.addActionListener(this);
-		barraMenu.add(menuCalcular);
+		menuMenu.add(menuCalcular);
 		menuCalcular.add(itemCriticalIdeals);
 		itemCriticalIdeals.addActionListener(this);
 		add(barraMenu);
@@ -227,7 +240,11 @@ public class JGraphs extends JPanel
 				for( int j=0; j<nodos.get(i).list.size(); j++ )
 					if(nodos.get(i).d == false)
 						if(nodos.get(nodos.get(i).list.get(j)).d == false)
-							fout.println("			\\draw  (" + i + ") edge[->] (" + nodos.get(i).list.get(j) + ");");
+                            if(graphtype == 1)
+                                fout.println("			\\draw  (" + i + ") edge[->] (" + nodos.get(i).list.get(j) + ");");
+                            else
+                                if(nodos.get(i).list.get(j) > i)
+                                    fout.println("			\\draw  (" + i + ") edge (" + nodos.get(i).list.get(j) + ");");
 			
 			fout.println("		\\end{tikzpicture}");
 			fout.println("	\\end{center}");
@@ -353,19 +370,21 @@ public class JGraphs extends JPanel
 			for( int j=0; j<nodos.get(i).list.size(); j++ ){
 				g.setColor(Color.black);
 				g.drawLine(nodos.get(i).x,nodos.get(i).y,nodos.get(nodos.get(i).list.get(j)).x,nodos.get(nodos.get(i).list.get(j)).y);
-				int x1 = nodos.get(i).x, y1 = nodos.get(i).y, x2 = nodos.get(nodos.get(i).list.get(j)).x, y2 = nodos.get(nodos.get(i).list.get(j)).y;
-				double D = Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-				// u is the point at distance D-arrowW from x to y
-				double u1 = (D-arrowW)*x2/D + arrowW*x1/D;
-				double u2 = (D-arrowW)*y2/D + arrowW*y1/D;
-				// p is the perpendicular unit vector 
-				double p1 = arrowH*(x2 - x1)/D;
-				double p2 = arrowH*(y1 - y2)/D;
-				// v is the point at distance D-nz from x to y
-				double v1 = (D-nz)*x2/D + nz*x1/D;
-				double v2 = (D-nz)*y2/D + nz*y1/D;
-				g.drawLine( (int) (u1+p2), (int) (u2+p1), (int)v1, (int)v2);
-				g.drawLine( (int) (u1-p2), (int) (u2-p1), (int)v1, (int)v2);
+                if(graphtype == 1){
+                    int x1 = nodos.get(i).x, y1 = nodos.get(i).y, x2 = nodos.get(nodos.get(i).list.get(j)).x, y2 = nodos.get(nodos.get(i).list.get(j)).y;
+                    double D = Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+                    // u is the point at distance D-arrowW from x to y
+                    double u1 = (D-arrowW)*x2/D + arrowW*x1/D;
+                    double u2 = (D-arrowW)*y2/D + arrowW*y1/D;
+                    // p is the perpendicular unit vector
+                    double p1 = arrowH*(x2 - x1)/D;
+                    double p2 = arrowH*(y1 - y2)/D;
+                    // v is the point at distance D-nz from x to y
+                    double v1 = (D-nz)*x2/D + nz*x1/D;
+                    double v2 = (D-nz)*y2/D + nz*y1/D;
+                    g.drawLine( (int) (u1+p2), (int) (u2+p1), (int)v1, (int)v2);
+                    g.drawLine( (int) (u1-p2), (int) (u2-p1), (int)v1, (int)v2);
+                }
 
 			}
 				
@@ -507,10 +526,22 @@ public class JGraphs extends JPanel
 			toLaTeX();
 
 		}
+        else if (s == itemGraph){
+            itemGraph.setArmed(true);
+            itemDigraph.setArmed(false);
+            graphtype = 0;
+            repaint();
+        }
+        else if (s == itemDigraph){
+            itemGraph.setArmed(false);
+            itemDigraph.setArmed(true);
+            graphtype = 1;
+            repaint();
+        }
 		else if (s == text) {
 			String cadena = text.getText();
 			int nodosize=0;
-			if(cadena.charAt(0)== 'K'){
+			if(cadena.charAt(0)== 'K'){ // Grafica Completa
 				if(cadena.length() > 1)
 					nodosize = Integer.parseInt(cadena.substring(1,cadena.length()));
 							
@@ -531,7 +562,7 @@ public class JGraphs extends JPanel
 						nodo.list.add(k);
 				}
 				repaint();
-			}else if(cadena.charAt(0)== 'C'){
+			}else if(cadena.charAt(0)== 'C'){ // Ciclo
 				if(cadena.length() > 1)
 					nodosize = Integer.parseInt(cadena.substring(1,cadena.length()));
 							
@@ -554,7 +585,7 @@ public class JGraphs extends JPanel
 					nodos.add(nodo);
 				}
 				repaint();
-			} else if(cadena.charAt(0)== 'P'){
+			} else if(cadena.charAt(0)== 'P'){ // Camino
 				if(cadena.length() > 1)
 					nodosize = Integer.parseInt(cadena.substring(1,cadena.length()));
 							
@@ -575,7 +606,7 @@ public class JGraphs extends JPanel
 					nodos.add(nodo);
 				}
 				repaint();
-				}else if(cadena.charAt(0)== 'T'){
+				}else if(cadena.charAt(0)== 'T'){ // Grafica Trivial
 					if(cadena.length() > 1)
 						nodosize = Integer.parseInt(cadena.substring(1,cadena.length()));
 								
@@ -593,7 +624,7 @@ public class JGraphs extends JPanel
 						nodos.add(nodo);
 					}
 					repaint();
-				}else if(cadena.charAt(0)== '{'){
+				}else if(cadena.charAt(0)== '{'){ // Desde Matriz
 					int [][] matriz = string2matrix(cadena);
 					nodosize = matriz.length;
 								
