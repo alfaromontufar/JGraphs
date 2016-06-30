@@ -126,7 +126,13 @@ public class JGraphs extends JPanel
     
     public String graph2string(){
 
-		String graph = "DiGraph({";
+		String graph;
+		
+		if(graphtype == 1)
+			graph = "DiGraph({";
+		else
+			graph = "Graph({";
+
 		int deleted = 0;
 		int[] dvector = new int [nodos.size()];
 
@@ -180,7 +186,7 @@ public class JGraphs extends JPanel
 		}
 
 		int nnodos = nodos.size()-deleted;
-		int[][] matrix = new int [nodos.size()-deleted][nnodos];
+		int[][] matrix = new int [nnodos][nnodos];
 
 		for(int i=0; i<nodos.size(); i++)	
 			if(!nodos.get(i).d){
@@ -208,7 +214,32 @@ public class JGraphs extends JPanel
 
 		return matrix;
     }
-	
+	public void toLaplacian(){
+		String dirName = "files";
+		File dir = new File (dirName);
+		String cadena = text.getText() + ".tex";
+		File archivo = new File(dir,cadena);
+		FileWriter file = null;
+		PrintWriter fout = null;
+
+		try{
+			file = new FileWriter(archivo);
+			fout = new PrintWriter(file);
+			
+			
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (null != file)
+					file.close();
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+	}
+
 	public void toLaTeX (){
 		String dirName = "files";
 		File dir = new File (dirName);
@@ -330,6 +361,24 @@ public class JGraphs extends JPanel
 				e2.printStackTrace();
 			}
 		}
+    }
+
+	public void runLaTeX() {
+			
+		try{
+			String cadena = text.getText();
+			String osname = System.getProperty("os.name");
+			System.out.println(osname);
+			if( String.strcmp(osname.toLowerCase(),"linux") == 0 ){
+				System.out.println("pdflatex ./files/" + cadena + ".tex");
+				Process p = Runtime.getRuntime().exec("pdflatex ./files/" + cadena + ".tex");
+				p.waitFor();
+				Runtime.getRuntime().exec("evince " + cadena + ".pdf");
+			}
+		}
+		catch (Exception err) {
+			err.printStackTrace();
+		}			
     }
 	
     public void runcsp() {
@@ -524,6 +573,7 @@ public class JGraphs extends JPanel
 		else if (s == itemLaTex){
 			
 			toLaTeX();
+			runLaTeX();
 
 		}
         else if (s == itemGraph){

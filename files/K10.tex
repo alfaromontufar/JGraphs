@@ -2,18 +2,18 @@
 \usepackage{tikz}
 \begin{document} 
 	\begin{center}
-		\begin{tikzpicture}[scale=0.02]
-		\tikzstyle{every node}=[minimum width=0pt, inner sep=1pt, circle]
-			\draw (-200,0) node[draw, fill=gray] (0) {};
-			\draw (-161,117) node[draw, fill=gray] (1) {};
-			\draw (-61,190) node[draw, fill=gray] (2) {};
-			\draw (61,190) node[draw, fill=gray] (3) {};
-			\draw (161,117) node[draw, fill=gray] (4) {};
-			\draw (200,0) node[draw, fill=gray] (5) {};
-			\draw (161,-117) node[draw, fill=gray] (6) {};
-			\draw (61,-190) node[draw, fill=gray] (7) {};
-			\draw (-61,-190) node[draw, fill=gray] (8) {};
-			\draw (-161,-117) node[draw, fill=gray] (9) {};
+		\begin{tikzpicture}[scale=2,thick]
+		\tikzstyle{every node}=[minimum width=0pt, inner sep=2pt, circle]
+			\draw (-2.0,0.0) node[draw] (0) { \tiny 0};
+			\draw (-1.61,-1.17) node[draw] (1) { \tiny 1};
+			\draw (-0.61,-1.9) node[draw] (2) { \tiny 2};
+			\draw (0.61,-1.9) node[draw] (3) { \tiny 3};
+			\draw (1.61,-1.17) node[draw] (4) { \tiny 4};
+			\draw (2.0,0.0) node[draw] (5) { \tiny 5};
+			\draw (1.61,1.17) node[draw] (6) { \tiny 6};
+			\draw (0.61,1.9) node[draw] (7) { \tiny 7};
+			\draw (-0.61,1.9) node[draw] (8) { \tiny 8};
+			\draw (-1.61,1.17) node[draw] (9) { \tiny 9};
 			\draw  (0) edge[->] (1);
 			\draw  (0) edge[->] (2);
 			\draw  (0) edge[->] (3);
