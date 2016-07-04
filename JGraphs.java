@@ -372,9 +372,14 @@ public class JGraphs extends JPanel
 	    System.out.println(osname);
 	    if( osname.toLowerCase().compareTo("linux") == 0 ){
 		System.out.println("pdflatex ./files/" + cadena + ".tex");
-		Process p = Runtime.getRuntime().exec("pdflatex ./files/" + cadena + ".tex");
+		//		Process p = Runtime.getRuntime().exec("pdflatex ./files/" + cadena + ".tex");
+
+		String[] cmd = {"/bin/sh", "-c", "cd ~/Documents/Projects/JGraphs.git/trunk/files/ && pdflatex ./" + cadena + ".tex"};
+		Process p = Runtime.getRuntime().exec(cmd);
+
+		//Process p = Runtime.getRuntime().exec(sh -c "cd ./files && pdflatex " + cadena + ".tex");
 		p.waitFor();
-		Runtime.getRuntime().exec("evince " + cadena + ".pdf");
+		Runtime.getRuntime().exec("evince ./files/" + cadena + ".pdf");
 	    }
 	}
 	catch (Exception err) {
