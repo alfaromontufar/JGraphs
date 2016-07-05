@@ -25,6 +25,7 @@ public class JGraphs extends JPanel
     private JMenuItem itemDigraph = new JMenuItem("Digraph");
     private JMenu menuExportar = new JMenu("Export to");
     private JMenuItem itemLaTex = new JMenuItem("To LaTeX");
+    private JMenuItem itemPython = new JMenuItem("To Python");
     private JMenu menuCalcular = new JMenu("Compute");
     private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
 	
@@ -53,6 +54,8 @@ public class JGraphs extends JPanel
         menuMenu.add(menuExportar);
         menuExportar.add(itemLaTex);
 	itemLaTex.addActionListener(this);
+	menuExportar.add(itemPython);
+	itemPython.addActionListener(this);
 	menuMenu.add(menuCalcular);
 	menuCalcular.add(itemCriticalIdeals);
 	itemCriticalIdeals.addActionListener(this);
@@ -150,15 +153,45 @@ public class JGraphs extends JPanel
 	    if(!nodos.get(i).d){
 		int aux1 = i - dvector[i], flag = 0;
 		String graph1 = (aux1 == 0 || firstused? "" : ",") + Integer.toString(aux1) + ":[";
-			
+
+		int[] excluidos = new int [nnodos];
+
+		for(int j = 0; j < nnodos; j++)
+		    if( nodos.get(j).d || j <= i )
+			excluidos[j] = 0;
+		    else
+			excluidos[j] = 1;
+		
 		for(int j=0; j<nodos.get(i).list.size(); j++)
-		    if(!nodos.get(nodos.get(i).list.get(j)).d){
+		    if(graphtype == 0 && nodos.get(i).list.get(j) > i && !nodos.get(nodos.get(i).list.get(j)).d){
+			
 			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
-				
+
+			excluidos[nodos.get(i).list.get(j)] = 0;
+			graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
+			if(flag == 0)
+			    flag = 1;
+			
+		    }
+		    else if(graphtype == 1 && !nodos.get(nodos.get(i).list.get(j)).d){
+			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
+			
 			graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
 			if(flag == 0)
 			    flag = 1;
 		    }
+
+		if(graphtype == 0)
+		    for(int j = 0; j < nnodos; j++)
+			if(excluidos[j] == 1 && nodos.get(j).list.contains(i)){
+			    int aux2 = j - dvector[j];
+
+			    graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
+			    if(flag == 0)
+				flag = 1;
+			}
+			    
+		
 		graph1 += "]";
 		if(flag != 0){
 		    graph += graph1;
@@ -215,6 +248,40 @@ public class JGraphs extends JPanel
 
 	return matrix;
     }
+
+
+    public void toPython(){
+
+	System.out.println(graph2string());
+	
+	/*
+	String dirName = "files";
+	File dir = new File (dirName);
+	String cadena = text.getText() + ".tex";
+	File archivo = new File(dir,cadena);
+	FileWriter file = null;
+	PrintWriter fout = null;
+
+	try{
+	    file = new FileWriter(archivo);
+	    fout = new PrintWriter(file);
+			
+			
+			
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
+	*/
+    }
+
+
     public void toLaplacian(){
 	String dirName = "files";
 	File dir = new File (dirName);
@@ -528,7 +595,6 @@ public class JGraphs extends JPanel
 			    for(; j<nodos.get(nodeflag).list.size(); j++)
 				if(nodos.get(nodeflag).list.get(j) == i){
 				    nodos.get(nodeflag).list.remove(j);
-				    //j = nodos.get(nodeflag).list.size()+1;
 				    j = -1;
 				    break;
 				}
@@ -590,6 +656,11 @@ public class JGraphs extends JPanel
 			
 	    toLaTeX();
 	    runLaTeX();
+
+	}
+	else if (s == itemPython){
+			
+	    toPython();
 
 	}
         else if (s == itemGraph){
