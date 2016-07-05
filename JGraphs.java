@@ -372,12 +372,8 @@ public class JGraphs extends JPanel
 	    System.out.println(osname);
 	    if( osname.toLowerCase().compareTo("linux") == 0 ){
 		System.out.println("pdflatex ./files/" + cadena + ".tex");
-		//		Process p = Runtime.getRuntime().exec("pdflatex ./files/" + cadena + ".tex");
-
 		String[] cmd = {"/bin/sh", "-c", "cd ~/Documents/Projects/JGraphs.git/trunk/files/ && pdflatex ./" + cadena + ".tex"};
 		Process p = Runtime.getRuntime().exec(cmd);
-
-		//Process p = Runtime.getRuntime().exec(sh -c "cd ./files && pdflatex " + cadena + ".tex");
 		p.waitFor();
 		Runtime.getRuntime().exec("evince ./files/" + cadena + ".pdf");
 	    }
@@ -422,26 +418,27 @@ public class JGraphs extends JPanel
 	//if(!(mainflag == 2 && binvflag == 1))
 	// Dibuja las aristas
 	for( int i=0; i<nodos.size(); i++ )	
-	    for( int j=0; j<nodos.get(i).list.size(); j++ ){
-		g.setColor(Color.black);
-		g.drawLine(nodos.get(i).x,nodos.get(i).y,nodos.get(nodos.get(i).list.get(j)).x,nodos.get(nodos.get(i).list.get(j)).y);
-                if(graphtype == 1){
-                    int x1 = nodos.get(i).x, y1 = nodos.get(i).y, x2 = nodos.get(nodos.get(i).list.get(j)).x, y2 = nodos.get(nodos.get(i).list.get(j)).y;
-                    double D = Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
-                    // u is the point at distance D-arrowW from x to y
-                    double u1 = (D-arrowW)*x2/D + arrowW*x1/D;
-                    double u2 = (D-arrowW)*y2/D + arrowW*y1/D;
-                    // p is the perpendicular unit vector
-                    double p1 = arrowH*(x2 - x1)/D;
-                    double p2 = arrowH*(y1 - y2)/D;
-                    // v is the point at distance D-nz from x to y
-                    double v1 = (D-nz)*x2/D + nz*x1/D;
-                    double v2 = (D-nz)*y2/D + nz*y1/D;
-                    g.drawLine( (int) (u1+p2), (int) (u2+p1), (int)v1, (int)v2);
-                    g.drawLine( (int) (u1-p2), (int) (u2-p1), (int)v1, (int)v2);
-                }
+	    for( int j=0; j<nodos.get(i).list.size(); j++ )
+		if(!(nodos.get(i).d || nodos.get(nodos.get(i).list.get(j)).d)){
+		    g.setColor(Color.black);
+		    g.drawLine(nodos.get(i).x,nodos.get(i).y,nodos.get(nodos.get(i).list.get(j)).x,nodos.get(nodos.get(i).list.get(j)).y);
+		    if(graphtype == 1){
+			int x1 = nodos.get(i).x, y1 = nodos.get(i).y, x2 = nodos.get(nodos.get(i).list.get(j)).x, y2 = nodos.get(nodos.get(i).list.get(j)).y;
+			double D = Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+			// u is the point at distance D-arrowW from x to y
+			double u1 = (D-arrowW)*x2/D + arrowW*x1/D;
+			double u2 = (D-arrowW)*y2/D + arrowW*y1/D;
+			// p is the perpendicular unit vector
+			double p1 = arrowH*(x2 - x1)/D;
+			double p2 = arrowH*(y1 - y2)/D;
+			// v is the point at distance D-nz from x to y
+			double v1 = (D-nz)*x2/D + nz*x1/D;
+			double v2 = (D-nz)*y2/D + nz*y1/D;
+			g.drawLine( (int) (u1+p2), (int) (u2+p1), (int)v1, (int)v2);
+			g.drawLine( (int) (u1-p2), (int) (u2-p1), (int)v1, (int)v2);
+		    }
 
-	    }
+		}
 				
 	// Dibuja los nodos
 	for(int i=0; i<nodos.size(); i++){
@@ -517,15 +514,28 @@ public class JGraphs extends JPanel
 		    }
 		    else{
 			if(nodeflag != i){
-			    int j = 0;
+			    int j = 0, k = 0;
+			    if(graphtype == 0)
+				for(; k<nodos.get(i).list.size(); k++)
+				    if(nodos.get(i).list.get(k) == nodeflag){
+					nodos.get(i).list.remove(k);
+					k = -1;
+					break;
+				    }
+			    if(k > -1)
+				k = 0;
+
 			    for(; j<nodos.get(nodeflag).list.size(); j++)
 				if(nodos.get(nodeflag).list.get(j) == i){
 				    nodos.get(nodeflag).list.remove(j);
-				    j = nodos.get(nodeflag).list.size()+1;
+				    //j = nodos.get(nodeflag).list.size()+1;
 				    j = -1;
 				    break;
 				}
-			    if( j != -1 )
+
+			    j = j + k;
+			    
+			    if( j > -1 )
 				nodos.get(nodeflag).list.add(i);
 			}
 			nodeflag = -1;
