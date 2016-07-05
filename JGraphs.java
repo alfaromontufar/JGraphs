@@ -425,7 +425,11 @@ public class JGraphs extends JPanel
 		Process p = Runtime.getRuntime().exec(cmd);
 		p.waitFor();
 		Runtime.getRuntime().exec("evince ./files/" + cadena + ".pdf");
-	    }
+	    } else if ( osname.charAt(0) == 'W' || osname.charAt(0) == 'w' ){
+		String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
+		Process p = Runtime.getRuntime().exec(cmd);
+		p.waitFor();
+		}
 	}
 	catch (Exception err) {
 	    err.printStackTrace();
