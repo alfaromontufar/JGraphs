@@ -128,87 +128,7 @@ public class JGraphs extends JPanel
 	return matriz;
     }
     
-    public String graph2string(){
-
-	String graph;
-		
-	if(graphtype == 1)
-	    graph = "DiGraph({";
-	else
-	    graph = "Graph({";
-
-	int deleted = 0;
-	int[] dvector = new int [nodos.size()];
-
-	for(int i=0; i<nodos.size(); i++){
-	    if(nodos.get(i).d == true)
-		deleted++;
-	    dvector[i] = deleted;
-	}
-
-	int nnodos = nodos.size()-deleted;
-	boolean firstused = true;
-
-	for(int i=0; i<nodos.size(); i++)	
-	    if(!nodos.get(i).d){
-		int aux1 = i - dvector[i], flag = 0;
-		String graph1 = (aux1 == 0 || firstused? "" : ",") + Integer.toString(aux1) + ":[";
-
-		int[] excluidos = new int [nnodos];
-
-		for(int j = 0; j < nnodos; j++)
-		    if( nodos.get(j).d || j <= i )
-			excluidos[j] = 0;
-		    else
-			excluidos[j] = 1;
-		
-		for(int j=0; j<nodos.get(i).list.size(); j++)
-		    if(graphtype == 0 && nodos.get(i).list.get(j) > i && !nodos.get(nodos.get(i).list.get(j)).d){
-			
-			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
-
-			excluidos[nodos.get(i).list.get(j)] = 0;
-			graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
-			if(flag == 0)
-			    flag = 1;
-			
-		    }
-		    else if(graphtype == 1 && !nodos.get(nodos.get(i).list.get(j)).d){
-			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
-			
-			graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
-			if(flag == 0)
-			    flag = 1;
-		    }
-
-		if(graphtype == 0)
-		    for(int j = 0; j < nnodos; j++)
-			if(excluidos[j] == 1 && nodos.get(j).list.contains(i)){
-			    int aux2 = j - dvector[j];
-
-			    graph1 += (flag == 0? "" : ",") + Integer.toString(aux2);
-			    if(flag == 0)
-				flag = 1;
-			}
-			    
-		
-		graph1 += "]";
-		if(flag != 0){
-		    graph += graph1;
-		    firstused = false;
-		}
-	    }
-
-	graph += "});";
-
-
-	//System.out.println(graph);
-
-	return graph;
-
-    }
-
-    public int[][] graph2Laplacian(){
+	public int[][] graph2Laplacian(){
 
 	int deleted = 0;
 	int[] dvector = new int [nodos.size()];
@@ -229,10 +149,11 @@ public class JGraphs extends JPanel
 		for(int j=0; j<nodos.get(i).list.size(); j++)
 		    if(!nodos.get(nodos.get(i).list.get(j)).d){
 			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
-			matrix[aux1][aux2]--;
+				matrix[aux1][aux2]=-1;
 				
 			// This is in the non-directed graph case
-			//	matrix[aux2][aux1]--;
+			if(graphtype == 0)
+				matrix[aux2][aux1]=-1;
 		    }
 	    }
 
@@ -244,14 +165,66 @@ public class JGraphs extends JPanel
 	    matrix[i][i] = (-suma);
 	}
 
-	//printmatrix(matrix);
-
 	return matrix;
     }
+	
+    public String graph2string(){
 
+	String graph;
+		
+	if(graphtype == 1)
+	    graph = "DiGraph({";
+	else
+	    graph = "Graph({";
+
+	int deleted = 0;
+	int[] dvector = new int [nodos.size()];
+
+	for(int i=0; i<nodos.size(); i++){
+	    if(nodos.get(i).d == true)
+		deleted++;
+	    dvector[i] = deleted;
+	}
+
+	int nnodos = nodos.size()-deleted;
+	boolean firstused = true;
+	int[][] matrix = graph2Laplacian();
+	
+	for(int i=0; i<nnodos; i++){
+		int flag = 0;
+		String graph1 = (firstused? "" : ",") + Integer.toString(i) + ":[";
+		
+		if(graphtype == 0){
+			for(int j=i+1; j<nnodos; j++)
+				if(matrix[i][j] != 0 ){
+					graph1 += (flag == 0? "" : ",") + Integer.toString(j);
+					if(flag == 0)
+						flag = 1;				
+				}
+		}else 
+			for(int j=0; j<nnodos; j++)
+				if( i != j && matrix[i][j] != 0 ){
+					graph1 += (flag == 0? "" : ",") + Integer.toString(j);
+					if(flag == 0)
+						flag = 1;
+				}
+		
+		graph1 += "]";
+		if(flag != 0){
+			graph += graph1;
+			firstused = false;
+		}
+	}
+
+	graph += "});";
+
+	return graph;
+
+    }
 
     public void toPython(){
 
+	//graph2Laplacian();
 	System.out.println(graph2string());
 	
 	/*
@@ -329,10 +302,19 @@ public class JGraphs extends JPanel
 	    int h=getSize ( ).height;
 	    cx = w/2;
 	    cy = h/2;
-			
+		
+		int deleted = 0;
+		int[] dvector = new int [nodos.size()];
+
+		for(int i=0; i<nodos.size(); i++){
+			if(nodos.get(i).d == true)
+			deleted++;
+			dvector[i] = deleted;
+		}
+	
 	    for(int i=0; i<nodos.size(); i++){
 		if(nodos.get(i).d == false)
-		    fout.println("			\\draw (" + (float)  (nodos.get(i).x - cx)/100 + "," + (float) (cy - nodos.get(i).y)/100 + ") node[draw] (" + i + ") { \\tiny " + i + "};");
+		    fout.println("			\\draw (" + (float)  (nodos.get(i).x - cx)/100 + "," + (float) (cy - nodos.get(i).y)/100 + ") node[draw] (" + i + ") { \\tiny " + (i - dvector[i]) + "};");
 	    }
 			
 	    for( int i=0; i<nodos.size(); i++ )	
@@ -508,10 +490,13 @@ public class JGraphs extends JPanel
 		}
 				
 	// Dibuja los nodos
+	int allowed = -1;
 	for(int i=0; i<nodos.size(); i++){
 	    g.setColor(Color.white);
 	    if(nodos.get(i).d)		   
 		g.setColor(Color.gray);
+		else
+		allowed++;
 	    if(mainflag == 1 && i == colorvflag){
 		if(binvflag == 1)
 		    g.setColor (Color.green);
@@ -521,7 +506,8 @@ public class JGraphs extends JPanel
 	    }
 	    g.fillOval(nodos.get(i).x-nz,nodos.get(i).y-nz,2*nz,2*nz);	   
 	    g.setColor(Color.black);
-	    g.drawString("" + (i+1),nodos.get(i).x-nz,nodos.get(i).y-2*nz);
+	    if(!nodos.get(i).d)
+			g.drawString("" + (allowed),nodos.get(i).x-nz,nodos.get(i).y-2*nz);
 	    g.drawOval(nodos.get(i).x-nz,nodos.get(i).y-nz,2*nz,2*nz);
 	}
 			
