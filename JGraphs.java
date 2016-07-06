@@ -343,11 +343,11 @@ public class JGraphs extends JPanel
 	}
     }
 
-    public void createFile (){
+    public void computeCriticalIdeals(){
 	String dirName = "files";
 	File dir = new File (dirName);
-	String cadena = text.getText() + ".sage";
-	File archivo = new File(dir,cadena);
+	String cadena = text.getText();
+	File archivo = new File(dir,cadena+ ".sage");
 	FileWriter file = null;
 	PrintWriter fout = null;
 	try{
@@ -400,7 +400,8 @@ public class JGraphs extends JPanel
 	    fout.println("from subprocess import call");
 	    fout.println("call(['emacs','" + cadena + ".txt'])");
 	    fout.println("call(['open','" + cadena + ".txt'])");
-					
+		
+		System.out.println("Created File: ./files/" + cadena + ".sage");			
 	}catch (Exception e) {
 	    e.printStackTrace();
 	}finally {
@@ -424,11 +425,15 @@ public class JGraphs extends JPanel
 		String[] cmd = {"/bin/sh", "-c", "cd ~/Documents/Projects/JGraphs.git/trunk/files/ && pdflatex ./" + cadena + ".tex"};
 		Process p = Runtime.getRuntime().exec(cmd);
 		p.waitFor();
+		System.out.println("evince ./files/" + cadena + ".pdf");
 		Runtime.getRuntime().exec("evince ./files/" + cadena + ".pdf");
-	    } else if ( osname.charAt(0) == 'W' || osname.charAt(0) == 'w' ){
-		String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
-		Process p = Runtime.getRuntime().exec(cmd);
-		p.waitFor();
+	    } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
+		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
+		//String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
+		//Process p = Runtime.getRuntime().exec(cmd);
+		//p.waitFor();
+		} else if(osname.toLowerCase().indexOf("mac")!=-1){
+		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
 		}
 	}
 	catch (Exception err) {
@@ -638,7 +643,7 @@ public class JGraphs extends JPanel
 	}
 	else if (s == itemCriticalIdeals){
 			
-	    createFile();
+	    computeCriticalIdeals();
 	    //runcsp();
 
 	}
