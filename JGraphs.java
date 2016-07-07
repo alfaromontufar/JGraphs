@@ -28,6 +28,7 @@ public class JGraphs extends JPanel
     private JMenuItem itemPython = new JMenuItem("To Python");
     private JMenu menuCalcular = new JMenu("Compute");
     private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
+    private JMenuItem itemForbDigraph = new JMenuItem("Forbidden Digraph");
 	
     // Declaración de botones
     private JButton buttonV = new JButton("Vertex");
@@ -59,6 +60,8 @@ public class JGraphs extends JPanel
 	menuMenu.add(menuCalcular);
 	menuCalcular.add(itemCriticalIdeals);
 	itemCriticalIdeals.addActionListener(this);
+	menuCalcular.add(itemForbDigraph);
+	itemForbDigraph.addActionListener(this);
 	add(barraMenu);
 		
 	buttonV.addActionListener(this);
@@ -335,6 +338,131 @@ public class JGraphs extends JPanel
 	}
     }
 
+    public void computeForbD (){
+	String cadena = text.getText();
+	FileWriter file = null;
+	PrintWriter fout = null;
+	try{
+	    file = new FileWriter(cadena + ".sage");
+	    fout = new PrintWriter(file);
+	    fout.println("# Forbidden digraphs with 3 vertices");
+	    fout.println("F3 = [];");
+	    fout.println("F3.append(DiGraph({0:[2],2:[1]}, name='F31'));");
+	    fout.println("F3.append(DiGraph({0:[2],1:[2],2:[0]}, name='F32'));");
+	    fout.println("F3.append(DiGraph({0:[2],2:[0,1]}, name='F33'));");
+	    fout.println("F3.append(DiGraph({0:[2],1:[2],2:[0,1]}, name='F34'));");
+	    fout.println("F3.append(DiGraph({0:[1],1:[2],2:[0]}, name='F35'));");
+	    fout.println("F3.append(DiGraph({0:[1,2],1:[0],2:[1]}, name='F36'));");
+	    fout.println("F3.append(DiGraph({0:[1,2],1:[0,2],2:[0]}, name='F37'));");
+	    fout.println("");
+	    fout.println("# Forbidden digraphs with 4 vertices");
+	    fout.println("F4 = [];");
+	    fout.println("F4.append(DiGraph({0:[2,3],1:[3]}, name='F41'));");
+	    fout.println("F4.append(DiGraph({0:[2,3],1:[3],2:[3]}, name='F42'));");
+	    fout.println("F4.append(DiGraph({0:[2],3:[0,1,2]}, name='F43'));");
+	    fout.println("F4.append(DiGraph({0:[2,3],1:[3],2:[0,3]}, name='F44'));");
+	    fout.println("F4.append(DiGraph({0:[2],1:[2],3:[0,1,2]}, name='F45'));");
+	    fout.println("F4.append(DiGraph({0:[2],2:[0],3:[0,1,2]}, name='F46'));");
+	    fout.println("F4.append(DiGraph({0:[1,2,3],1:[2,3],2:[3]}, name='F47'));");
+	    fout.println("F4.append(DiGraph({0:[1,2,3],1:[0,2,3],2:[3]}, name='F48'));");
+	    fout.println("F4.append(DiGraph({0:[1,2,3],1:[0,2,3],2:[3],3:[2]}, name='F49'));");
+	    fout.println("F4.append(DiGraph({0:[1],1:[0],2:[0,1,3],3:[0,1]}, name='F410'));");
+	    fout.println("");
+	    fout.println( "D = " + graph2string() );
+	    fout.println("");
+	    fout.println("n = len(D)");
+	    fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+	    fout.println("R.inject_variables();");
+	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
+	    fout.println("file = open('" + cadena + ".txt', 'w')");
+	    fout.println("");
+	    fout.println("def IsTrivial(L):");
+	    fout.println("	subLaplacian = Laplacian[L,L]");
+	    fout.println("	I = R.ideal(subLaplacian.minors(2))");
+	    fout.println("	return I.is_one()");
+	    fout.println("");
+	    fout.println("def ThreeVertices(L):");
+	    fout.println("	subD = D.subgraph(L)");
+	    fout.println("	if(IsTrivial(L)):");
+	    fout.println("		for F in F3:");
+	    fout.println("			if(subD.is_isomorphic(F)):");
+	    fout.println("				file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+	    fout.println("				F.show()");
+	    fout.println("				return True");
+	    fout.println("	else:");
+	    fout.println("		return False");
+	    fout.println("");
+	    fout.println("def FourVertices(L):");
+	    fout.println("	subD = D.subgraph(L)");
+	    fout.println("	if(IsTrivial(L)):");
+	    fout.println("		for F in F4:");
+	    fout.println("			if(subD.is_isomorphic(F)):");
+	    fout.println("				file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+	    fout.println("				F.show()");
+	    fout.println("				return True");
+	    fout.println("		for l in L:");
+	    fout.println("			L1 = list(L)");
+	    fout.println("			L1.remove(l)");
+	    fout.println("			if(ThreeVertices(L1)):");
+	    fout.println("				return True");
+	    fout.println("	else:");
+	    fout.println("		return False");
+	    fout.println("");
+	    fout.println("def MoreThanFourVertices(L):");
+	    fout.println("	subD = D.subgraph(L)");
+	    fout.println("	if(IsTrivial(L)):");
+	    fout.println("		if(len(L) == 5):");
+	    fout.println("			for l in L:");
+	    fout.println("				L1 = list(L)");
+	    fout.println("				L1.remove(l)");
+	    fout.println("				if(FourVertices(L1)):");
+	    fout.println("					return True");
+	    fout.println("		else:");
+	    fout.println("			for l in L:");
+	    fout.println("				L1 = list(L)");
+	    fout.println("				L1.remove(l)");
+	    fout.println("				if(MoreThanFourVertices(L1)):");
+	    fout.println("					return True");
+	    fout.println("		file.write('Something goes wrong! gamma > 1 but no graph in Forb is induced subgraph of D.\\n')");
+	    fout.println("		if(D.subgraph(L).is_connected()):");
+	    fout.println("			file.write('Vertices ' + str(L) + ' induce a connected graph\\n')");
+	    fout.println("		else:");
+	    fout.println("			file.write('Vertices ' + str(L) + ' induce a disconnected graph\\n')");
+	    fout.println("		return False");
+	    fout.println("	else:");
+	    fout.println("		return False");	    
+	    fout.println("");
+	    fout.println("def Forb():");
+	    fout.println("	if(n == 3):");
+	    fout.println("		if(ThreeVertices(range(n)) == False):");
+	    fout.println("			file.write('The graph has gamma < 1.\\n')");
+	    fout.println("	elif(n == 4):");
+	    fout.println("		if(FourVertices(range(n)) == False):");
+	    fout.println("			file.write('The graph has gamma < 1.\\n')");
+	    fout.println("	elif(n > 4):");
+	    fout.println("		if(MoreThanFourVertices(range(n)) == False):");
+	    fout.println("			file.write('The graph has gamma < 1.\\n')");
+	    fout.println("	else:");
+	    fout.println("		file.write('The graph has gamma < 1, because it is too small.\\n')");
+	    fout.println("");
+	    fout.println("Forb()");
+	    fout.println("file.close()");
+	    fout.println("");
+	    fout.println("from subprocess import call");
+	    fout.println("call(['emacs','" + cadena + ".txt'])");
+				
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
+    }
+
     public void computeCriticalIdeals(){
 	String dirName = "files";
 	File dir = new File (dirName);
@@ -406,6 +534,30 @@ public class JGraphs extends JPanel
 	}
     }
 
+    public void runForbD() {
+			
+	try{
+	    String cadena = text.getText();
+	    String osname = System.getProperty("os.name");
+	    System.out.println(osname);
+	    if( osname.toLowerCase().compareTo("linux") == 0 ){
+		System.out.println("sage ./files/" + cadena + ".sage");
+		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+		Process p = Runtime.getRuntime().exec(cmd);
+		//p.waitFor();
+		//System.out.println("emacs ./files/" + cadena + ".sage");
+		//Runtime.getRuntime().exec("emacs ./files/" + cadena + ".sage");
+	    } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
+		System.out.println("Not implemented yet. In the future it will execute: sage ./files/" + cadena + ".sage");
+	    } else if(osname.toLowerCase().indexOf("mac")!=-1){
+		System.out.println("Not implemented yet. In the future it will execute: sage ./files/" + cadena + ".sage");
+	    }
+	}
+	catch (Exception err) {
+	    err.printStackTrace();
+	}			
+    }
+
     public void runPython() {
 			
 	try{
@@ -413,19 +565,16 @@ public class JGraphs extends JPanel
 	    String osname = System.getProperty("os.name");
 	    System.out.println(osname);
 	    if( osname.toLowerCase().compareTo("linux") == 0 ){
-		System.out.println("pdflatex ./files/" + cadena + ".tex");
+		System.out.println("python ./files/" + cadena + ".py");
 		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && python ./" + cadena + ".py"};
 		Process p = Runtime.getRuntime().exec(cmd);
 		p.waitFor();
 		System.out.println("evince ./files/" + cadena + ".py");
 		Runtime.getRuntime().exec("evince ./files/" + cadena + ".py");
 	    } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
-		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
-		//String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
-		//Process p = Runtime.getRuntime().exec(cmd);
-		//p.waitFor();
+		System.out.println("Not implemented yet. In the future it will execute: python ./files/" + cadena + ".py");
 	    } else if(osname.toLowerCase().indexOf("mac")!=-1){
-		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
+		System.out.println("Not implemented yet. In the future it will execute: python ./files/" + cadena + ".py");
 	    }
 	}
 	catch (Exception err) {
@@ -671,6 +820,10 @@ public class JGraphs extends JPanel
 	    toLaTeX();
 	    runLaTeX();
 
+	}
+	else if (s == itemForbDigraph){
+	    computeForbD();
+	    runForbD();
 	}
 	else if (s == itemPython){
 			
