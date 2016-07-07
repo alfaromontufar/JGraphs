@@ -128,7 +128,7 @@ public class JGraphs extends JPanel
 	return matriz;
     }
     
-	public int[][] graph2Laplacian(){
+    public int[][] graph2Laplacian(){
 
 	int deleted = 0;
 	int[] dvector = new int [nodos.size()];
@@ -149,11 +149,11 @@ public class JGraphs extends JPanel
 		for(int j=0; j<nodos.get(i).list.size(); j++)
 		    if(!nodos.get(nodos.get(i).list.get(j)).d){
 			int aux2 = nodos.get(i).list.get(j) - dvector[nodos.get(i).list.get(j)];
-				matrix[aux1][aux2]=-1;
+			matrix[aux1][aux2]=-1;
 				
 			// This is in the non-directed graph case
 			if(graphtype == 0)
-				matrix[aux2][aux1]=-1;
+			    matrix[aux2][aux1]=-1;
 		    }
 	    }
 
@@ -170,12 +170,7 @@ public class JGraphs extends JPanel
 	
     public String graph2string(){
 
-	String graph;
-		
-	if(graphtype == 1)
-	    graph = "DiGraph({";
-	else
-	    graph = "Graph({";
+	String graph = "{";
 
 	int deleted = 0;
 	int[] dvector = new int [nodos.size()];
@@ -191,46 +186,41 @@ public class JGraphs extends JPanel
 	int[][] matrix = graph2Laplacian();
 	
 	for(int i=0; i<nnodos; i++){
-		int flag = 0;
-		String graph1 = (firstused? "" : ",") + Integer.toString(i) + ":[";
+	    int flag = 0;
+	    String graph1 = (firstused? "" : ",") + Integer.toString(i) + ":[";
 		
-		if(graphtype == 0){
-			for(int j=i+1; j<nnodos; j++)
-				if(matrix[i][j] != 0 ){
-					graph1 += (flag == 0? "" : ",") + Integer.toString(j);
-					if(flag == 0)
-						flag = 1;				
-				}
-		}else 
-			for(int j=0; j<nnodos; j++)
-				if( i != j && matrix[i][j] != 0 ){
-					graph1 += (flag == 0? "" : ",") + Integer.toString(j);
-					if(flag == 0)
-						flag = 1;
-				}
+	    if(graphtype == 0){
+		for(int j=i+1; j<nnodos; j++)
+		    if(matrix[i][j] != 0 ){
+			graph1 += (flag == 0? "" : ",") + Integer.toString(j);
+			if(flag == 0)
+			    flag = 1;				
+		    }
+	    }else 
+		for(int j=0; j<nnodos; j++)
+		    if( i != j && matrix[i][j] != 0 ){
+			graph1 += (flag == 0? "" : ",") + Integer.toString(j);
+			if(flag == 0)
+			    flag = 1;
+		    }
 		
-		graph1 += "]";
-		if(flag != 0){
-			graph += graph1;
-			firstused = false;
-		}
+	    graph1 += "]";
+	    if(flag != 0){
+		graph += graph1;
+		firstused = false;
+	    }
 	}
 
-	graph += "});";
+	graph += "};";
 
 	return graph;
 
     }
 
-    public void toPython(){
-
-	//graph2Laplacian();
-	System.out.println(graph2string());
-	
-	/*
+    public void toPython(){	
 	String dirName = "files";
 	File dir = new File (dirName);
-	String cadena = text.getText() + ".tex";
+	String cadena = text.getText() + ".py";
 	File archivo = new File(dir,cadena);
 	FileWriter file = null;
 	PrintWriter fout = null;
@@ -238,8 +228,10 @@ public class JGraphs extends JPanel
 	try{
 	    file = new FileWriter(archivo);
 	    fout = new PrintWriter(file);
-			
-			
+	    fout.println("import networkx as nx");
+	    fout.println("d = " + graph2string());
+	    fout.println("G = nx.Graph(d)");
+	    fout.println("nx.write_gml(G,\"" + cadena + "gml\")");			
 			
 	}catch (Exception e) {
 	    e.printStackTrace();
@@ -251,7 +243,7 @@ public class JGraphs extends JPanel
 		e2.printStackTrace();
 	    }
 	}
-	*/
+	
     }
 
 
@@ -303,14 +295,14 @@ public class JGraphs extends JPanel
 	    cx = w/2;
 	    cy = h/2;
 		
-		int deleted = 0;
-		int[] dvector = new int [nodos.size()];
+	    int deleted = 0;
+	    int[] dvector = new int [nodos.size()];
 
-		for(int i=0; i<nodos.size(); i++){
-			if(nodos.get(i).d == true)
-			deleted++;
-			dvector[i] = deleted;
-		}
+	    for(int i=0; i<nodos.size(); i++){
+		if(nodos.get(i).d == true)
+		    deleted++;
+		dvector[i] = deleted;
+	    }
 	
 	    for(int i=0; i<nodos.size(); i++){
 		if(nodos.get(i).d == false)
@@ -401,7 +393,7 @@ public class JGraphs extends JPanel
 	    fout.println("call(['emacs','" + cadena + ".txt'])");
 	    fout.println("call(['open','" + cadena + ".txt'])");
 		
-		System.out.println("Created File: ./files/" + cadena + ".sage");			
+	    System.out.println("Created File: ./files/" + cadena + ".sage");			
 	}catch (Exception e) {
 	    e.printStackTrace();
 	}finally {
@@ -414,6 +406,33 @@ public class JGraphs extends JPanel
 	}
     }
 
+    public void runPython() {
+			
+	try{
+	    String cadena = text.getText();
+	    String osname = System.getProperty("os.name");
+	    System.out.println(osname);
+	    if( osname.toLowerCase().compareTo("linux") == 0 ){
+		System.out.println("pdflatex ./files/" + cadena + ".tex");
+		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && python ./" + cadena + ".py"};
+		Process p = Runtime.getRuntime().exec(cmd);
+		p.waitFor();
+		System.out.println("evince ./files/" + cadena + ".py");
+		Runtime.getRuntime().exec("evince ./files/" + cadena + ".py");
+	    } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
+		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
+		//String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
+		//Process p = Runtime.getRuntime().exec(cmd);
+		//p.waitFor();
+	    } else if(osname.toLowerCase().indexOf("mac")!=-1){
+		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
+	    }
+	}
+	catch (Exception err) {
+	    err.printStackTrace();
+	}			
+    }
+
     public void runLaTeX() {
 			
 	try{
@@ -422,7 +441,7 @@ public class JGraphs extends JPanel
 	    System.out.println(osname);
 	    if( osname.toLowerCase().compareTo("linux") == 0 ){
 		System.out.println("pdflatex ./files/" + cadena + ".tex");
-		String[] cmd = {"/bin/sh", "-c", "cd ~/Documents/Projects/JGraphs.git/trunk/files/ && pdflatex ./" + cadena + ".tex"};
+		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && pdflatex ./" + cadena + ".tex"};
 		Process p = Runtime.getRuntime().exec(cmd);
 		p.waitFor();
 		System.out.println("evince ./files/" + cadena + ".pdf");
@@ -432,9 +451,9 @@ public class JGraphs extends JPanel
 		//String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
 		//Process p = Runtime.getRuntime().exec(cmd);
 		//p.waitFor();
-		} else if(osname.toLowerCase().indexOf("mac")!=-1){
+	    } else if(osname.toLowerCase().indexOf("mac")!=-1){
 		System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
-		}
+	    }
 	}
 	catch (Exception err) {
 	    err.printStackTrace();
@@ -504,7 +523,7 @@ public class JGraphs extends JPanel
 	    g.setColor(Color.white);
 	    if(nodos.get(i).d)		   
 		g.setColor(Color.gray);
-		else
+	    else
 		allowed++;
 	    if(mainflag == 1 && i == colorvflag){
 		if(binvflag == 1)
@@ -516,7 +535,7 @@ public class JGraphs extends JPanel
 	    g.fillOval(nodos.get(i).x-nz,nodos.get(i).y-nz,2*nz,2*nz);	   
 	    g.setColor(Color.black);
 	    if(!nodos.get(i).d)
-			g.drawString("" + (allowed),nodos.get(i).x-nz,nodos.get(i).y-2*nz);
+		g.drawString("" + (allowed),nodos.get(i).x-nz,nodos.get(i).y-2*nz);
 	    g.drawOval(nodos.get(i).x-nz,nodos.get(i).y-nz,2*nz,2*nz);
 	}
 			
