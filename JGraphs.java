@@ -171,6 +171,25 @@ public class JGraphs extends JPanel
 	return matrix;
     }
 	
+	public String vars2string(){
+
+		String graph = "";
+		
+		int deleted = 0;
+
+		for(int i=0; i<nodos.size(); i++)
+			if(nodos.get(i).d == true)
+			deleted++;
+
+		int nnodos = nodos.size() - deleted;
+		
+		for(int i=0; i<nnodos; i++)
+			graph += ( i == 0? "x"  : ",x" ) + i;
+			
+		return graph;
+	
+	}
+	
     public String graph2string(){
 
 	String graph = "{";
@@ -374,7 +393,8 @@ public class JGraphs extends JPanel
 	    fout.println( "D = " + graph2string() );
 	    fout.println("");
 	    fout.println("n = len(D)");
-	    fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+		fout.println("R = macaulay2.ring(\"ZZ\",\"[" + vars2string() + "]\").to_sage();");
 	    fout.println("R.inject_variables();");
 	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
 	    fout.println("file = open('" + cadena + ".txt', 'w')");
@@ -479,7 +499,8 @@ public class JGraphs extends JPanel
 	    fout.println( "D = " + graph2string() );
 	    fout.println("");
 	    fout.println("n = len(D)");
-	    fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+		fout.println("R = macaulay2.ring(\"ZZ\",\"[" + vars2string() + "]\").to_sage();");
 	    fout.println("R.inject_variables();");
 	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
 	    fout.println("file = open('" + cadena + ".txt', 'w')");
