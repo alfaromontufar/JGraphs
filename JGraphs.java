@@ -233,7 +233,7 @@ public class JGraphs extends JPanel
 	    }
 	}
 
-	graph += "};";
+	graph += "}";
 
 	return graph;
 
@@ -390,7 +390,7 @@ public class JGraphs extends JPanel
 	    fout.println("F4.append(DiGraph({0:[1,2,3],1:[0,2,3],2:[3],3:[2]}, name='F49'));");
 	    fout.println("F4.append(DiGraph({0:[1],1:[0],2:[0,1,3],3:[0,1]}, name='F410'));");
 	    fout.println("");
-	    fout.println( "D = " + graph2string() );
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
 	    fout.println("");
 	    fout.println("n = len(D)");
 	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
@@ -490,13 +490,13 @@ public class JGraphs extends JPanel
 	String dirName = "files";
 	File dir = new File (dirName);
 	String cadena = text.getText();
-	File archivo = new File(dir,cadena+ ".sage");
+	File archivo = new File(cadena+ ".sage");
 	FileWriter file = null;
 	PrintWriter fout = null;
 	try{
 	    file = new FileWriter(archivo);
 	    fout = new PrintWriter(file);
-	    fout.println( "D = " + graph2string() );
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
 	    fout.println("");
 	    fout.println("n = len(D)");
 	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
@@ -566,11 +566,9 @@ public class JGraphs extends JPanel
 	    System.out.println(osname);
 	    if( osname.toLowerCase().compareTo("linux") == 0 ){
 		System.out.println("sage ./files/" + cadena + ".sage");
-		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+		String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage " + cadena + ".sage"};
 		Process p = Runtime.getRuntime().exec(cmd);
-		//p.waitFor();
-		//System.out.println("emacs ./files/" + cadena + ".sage");
-		//Runtime.getRuntime().exec("emacs ./files/" + cadena + ".sage");
+		p.waitFor();
 	    } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
 		System.out.println("Not implemented yet. In the future it will execute: sage ./files/" + cadena + ".sage");
 	    } else if(osname.toLowerCase().indexOf("mac")!=-1){
@@ -836,7 +834,7 @@ public class JGraphs extends JPanel
 	else if (s == itemCriticalIdeals){
 			
 	    computeCriticalIdeals();
-	    //runcsp();
+	    runcsp();
 
 	}
 	else if (s == itemLaTex){
