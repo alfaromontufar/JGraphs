@@ -10,7 +10,7 @@ import java.io.IOException;
 
 
 public class JGraphs extends JPanel
-implements ActionListener, MouseListener, MouseMotionListener {
+    implements ActionListener, MouseListener, MouseMotionListener {
     // Variables Globales
     private java.util.List<Nodo> nodos;
     private int cx, cy;
@@ -28,6 +28,7 @@ implements ActionListener, MouseListener, MouseMotionListener {
     private JMenuItem itemPython = new JMenuItem("To Python");
     private JMenu menuCalcular = new JMenu("Compute");
     private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
+    private JMenuItem itemCriticalGroup = new JMenuItem("Critical group");
     private JMenuItem itemForbDigraph = new JMenuItem("Forbidden Digraph");
     
     // Declaración de botones
@@ -60,6 +61,8 @@ implements ActionListener, MouseListener, MouseMotionListener {
         menuMenu.add(menuCalcular);
         menuCalcular.add(itemCriticalIdeals);
         itemCriticalIdeals.addActionListener(this);
+	menuCalcular.add(itemCriticalGroup);
+        itemCriticalGroup.addActionListener(this);
         menuCalcular.add(itemForbDigraph);
         itemForbDigraph.addActionListener(this);
         add(barraMenu);
@@ -85,12 +88,12 @@ implements ActionListener, MouseListener, MouseMotionListener {
     public static int countOccurrencesOf(String haystack, char needle){
         int count = 0;
         for (int i=0; i < haystack.length(); i++)
-        {
-            if (haystack.charAt(i) == needle)
-            {
-                count++;
-            }
-        }
+	    {
+		if (haystack.charAt(i) == needle)
+		    {
+			count++;
+		    }
+	    }
         return count;
     }
     
@@ -485,77 +488,132 @@ implements ActionListener, MouseListener, MouseMotionListener {
             }
         }
     }
-    
-    public void computeCriticalIdeals(){
-        String dirName = "files";
+
+    public void computeCriticalGroup(){
+	String dirName = "files";
         File dir = new File (dirName);
-        String cadena = text.getText();
-        File archivo = new File(cadena+ ".sage");
+        String cadena = text.getText() + ".sage";
+        File archivo = new File(dir,cadena);
         FileWriter file = null;
         PrintWriter fout = null;
-        try{
-            file = new FileWriter(archivo);
-            fout = new PrintWriter(file);
-            fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+	try{
+	    file = new FileWriter(archivo);
+	    fout = new PrintWriter(file);
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+	    fout.println("");
+	    fout.println("n = len(D)");
+	    fout.println("");
+	    fout.println("def SNF():");
+	    fout.println("	L = - D.adjacency_matrix()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		L[i,i] = 0");
+	    fout.println("		for j in range(n):");
+	    fout.println("			if(j != i):");
+	    fout.println("				L[i,i] = L[i,i] - L[i,j]");
+	    fout.println("");
+	    fout.println("	list = []");
+	    fout.println("	S,L1,R = L.smith_form()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		if( S[i,i] != 0 ):");
+	    fout.println("			list.append(S[i,i])");
+	    fout.println("	return list ");
+	    fout.println("");
+	    fout.println("List = SNF()");
+	    fout.println("");
+	     fout.println("file = open('" + cadena + ".txt', 'w')");
             fout.println("");
-            fout.println("n = len(D)");
-            //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
-            fout.println("R = macaulay2.ring(\"ZZ\",\"[" + vars2string() + "]\").to_sage();");
-            fout.println("R.inject_variables();");
-            fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
-            fout.println("file = open('" + cadena + ".txt', 'w')");
-            fout.println("");
-            fout.println("file.write(str(Laplacian) + '\\n')");
-            fout.println("def Gamma():");
-            fout.println("	for i in range(n+1):");
-            fout.println("		I = R.ideal(Laplacian.minors(i))");
-            fout.println("		if( I.is_one() == True ):");
-            fout.println("			next");
-            fout.println("		else:");
-            fout.println("			return i-1");
-            fout.println("	return n");
-            fout.println("");
-            fout.println("gamma = Gamma()");
-            fout.println("");
-            fout.println("file.write('Gamma is ' + str(gamma) + '\\n')");
-            fout.println("");
-            fout.println("def SNF():");
-            fout.println("	L = - D.adjacency_matrix()");
-            fout.println("	for i in range(n):");
-            fout.println("		L[i,i] = 0");
-            fout.println("		for j in range(n):");
-            fout.println("			if(j != i):");
-            fout.println("				L[i,i] = L[i,i] - L[i,j]");
-            fout.println("");
-            fout.println("	list = []");
-            fout.println("	S,L1,R = L.smith_form()");
-            fout.println("	for i in range(n):");
-            fout.println("		if( S[i,i] != 0 ):");
-            fout.println("			list.append(S[i,i])");
-            fout.println("	return list ");
-            fout.println("");
-            fout.println("List = SNF()");
-            fout.println("");
-            fout.println("file.write('Smith Normal Form is ' + str(List) + '\\n')");
-            fout.println("file.write('f_1 is ' + str(List.count(1)) + '\\n')");
-            fout.println("");
-            fout.println("file.close()");
-            fout.println("");
-            fout.println("from subprocess import call");
-            fout.println("call(['emacs','" + cadena + ".txt'])");
-            fout.println("call(['open','" + cadena + ".txt'])");
-            
-            System.out.println("Created File: ./files/" + cadena + ".sage");
-        }catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            try {
-                if (null != file)
-                    file.close();
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
-        }
+	    fout.println("file.write('Smith Normal Form is ' + str(List) + '\\n')");
+	    fout.println("file.write('f_1 is ' + str(List.count(1)) + '\\n')");
+	    fout.println("");
+	    fout.println("file.close()");
+	    fout.println("");
+	    fout.println("from subprocess import call");
+	    fout.println("call(['emacs','" + cadena + ".txt'])");
+	    fout.println("call(['open','" + cadena + ".txt'])");
+		
+	    System.out.println("Created File: ./" + cadena + ".sage");			
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
+    }
+    
+    public void computeCriticalIdeals(){
+	String dirName = "files";
+	File dir = new File (dirName);
+	String cadena = text.getText();
+	File archivo = new File(cadena+ ".sage");
+	FileWriter file = null;
+	PrintWriter fout = null;
+	try{
+	    file = new FileWriter(archivo);
+	    fout = new PrintWriter(file);
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+	    fout.println("");
+	    fout.println("n = len(D)");
+	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+	    fout.println("R = macaulay2.ring(\"ZZ\",\"[" + vars2string() + "]\").to_sage();");
+	    fout.println("R.inject_variables();");
+	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
+	    fout.println("file = open('" + cadena + ".txt', 'w')");
+	    fout.println("");
+	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("def Gamma():");
+	    fout.println("	for i in range(n+1):");
+	    fout.println("		I = R.ideal(Laplacian.minors(i))");
+	    fout.println("		if( I.is_one() == True ):");
+	    fout.println("			next");
+	    fout.println("		else:");
+	    fout.println("			return i-1");
+	    fout.println("	return n");
+	    fout.println("");
+	    fout.println("gamma = Gamma()");
+	    fout.println("");
+	    fout.println("file.write('Gamma is ' + str(gamma) + '\\n')");
+	    fout.println("");
+	    fout.println("def SNF():");
+	    fout.println("	L = - D.adjacency_matrix()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		L[i,i] = 0");
+	    fout.println("		for j in range(n):");
+	    fout.println("			if(j != i):");
+	    fout.println("				L[i,i] = L[i,i] - L[i,j]");
+	    fout.println("");
+	    fout.println("	list = []");
+	    fout.println("	S,L1,R = L.smith_form()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		if( S[i,i] != 0 ):");
+	    fout.println("			list.append(S[i,i])");
+	    fout.println("	return list ");
+	    fout.println("");
+	    fout.println("List = SNF()");
+	    fout.println("");
+	    fout.println("file.write('Smith Normal Form is ' + str(List) + '\\n')");
+	    fout.println("file.write('f_1 is ' + str(List.count(1)) + '\\n')");
+	    fout.println("");
+	    fout.println("file.close()");
+	    fout.println("");
+	    fout.println("from subprocess import call");
+	    fout.println("call(['emacs','" + cadena + ".txt'])");
+	    fout.println("call(['open','" + cadena + ".txt'])");
+		
+	    System.out.println("Created File: ./" + cadena + ".sage");			
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
     }
     
     public void runForbD() {
@@ -576,6 +634,35 @@ implements ActionListener, MouseListener, MouseMotionListener {
                 String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage " + cadena + ".sage"};
                 Process p = Runtime.getRuntime().exec(cmd);
                 p.waitFor();
+            }
+        }
+        catch (Exception err) {
+            err.printStackTrace();
+        }
+    }
+
+    public void runCriticalGroup() {
+        
+        try{
+            String cadena = text.getText();
+            String osname = System.getProperty("os.name");
+            System.out.println(osname);
+            if( osname.toLowerCase().compareTo("linux") == 0 ){
+                System.out.println("sage ./files/" + cadena + ".sage");
+                String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+                Process p = Runtime.getRuntime().exec(cmd);
+                p.waitFor();
+                System.out.println("emacs ./files/" + cadena + ".py");
+                //Runtime.getRuntime().exec("emacs ./files/" + cadena + ".py");
+            } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
+                System.out.println("Not implemented yet. In the future it will execute: python ./files/" + cadena + ".py");
+            } else if(osname.toLowerCase().indexOf("mac")!=-1){
+                System.out.println("sage ./files/" + cadena + ".sage");
+                String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+                Process p = Runtime.getRuntime().exec(cmd);
+                //p.waitFor();
+                //System.out.println("emacs ./files/" + cadena + ".py");
+                //Runtime.getRuntime().exec("emacs ./files/" + cadena + ".py");
             }
         }
         catch (Exception err) {
@@ -644,25 +731,25 @@ implements ActionListener, MouseListener, MouseMotionListener {
         }
     }
     
-    public void runcsp() {
-        
-        try{
-            String cadena = text.getText();
-            String osname = System.getProperty("os.name");
-            //System.out.println(osname);
-            if(osname.toLowerCase().indexOf("mac")!=-1){
-                System.out.println("Usando mac");
-                String command = "sage " + cadena + ".sage";
-                //command = command.trim();
-                Runtime rt = Runtime.getRuntime();
-                Process proc = rt.exec( command );
-            }
-            Runtime.getRuntime().exec("sage " + cadena + ".sage");
-            //Runtime.getRuntime().exec("notepad " + cadena + ".txt");
-        }
-        catch (Exception err) {
-            err.printStackTrace();
-        }
+    public void runCriticalIdeals() {
+			
+	try{
+	    String cadena = text.getText();
+	    String osname = System.getProperty("os.name");
+	    //System.out.println(osname);
+	    if(osname.toLowerCase().indexOf("mac")!=-1){
+		System.out.println("Usando mac");
+		String command = "sage " + cadena + ".sage";
+		//command = command.trim();
+		Runtime rt = Runtime.getRuntime();
+		Process proc = rt.exec( command );
+	    }
+	    Runtime.getRuntime().exec("sage ./" + cadena + ".sage");
+	    //Runtime.getRuntime().exec("notepad " + cadena + ".txt");
+	}
+	catch (Exception err) {
+	    err.printStackTrace();
+	}			
     }
     
     public void paintComponent (Graphics g) {
@@ -827,44 +914,46 @@ implements ActionListener, MouseListener, MouseMotionListener {
     public void mouseMoved (MouseEvent event) { }
     
     public void actionPerformed (ActionEvent event) {
-        Object s = event.getSource( );
-        if (s == buttonV){
-            mainflag=0;
-        }
-        else if (s == buttonE){
-            mainflag=1;
-        }
-        else if (s == buttonM){
-            mainflag=2;
-        }
-        else if (s == buttonC){
-            nodos.clear();
-            repaint();
-        }
-        else if (s == buttonD){
-            mainflag=3;
-        }
-        else if (s == itemCriticalIdeals){
-            
-            computeCriticalIdeals();
-            runcsp();
-            
-        }
-        else if (s == itemLaTex){
-            
-            toLaTeX();
-            runLaTeX();
-            
-        }
-        else if (s == itemForbDigraph){
-            computeForbD();
-            runForbD();
-        }
-        else if (s == itemPython){
-            
-            toPython();
-            
-        }
+	Object s = event.getSource( );
+	if (s == buttonV){
+	    mainflag=0;
+	}
+	else if (s == buttonE){
+	    mainflag=1;
+	}
+	else if (s == buttonM){
+	    mainflag=2;
+	}
+	else if (s == buttonC){
+	    nodos.clear();
+	    repaint();
+	}
+	else if (s == buttonD){
+	    mainflag=3;
+	}
+	else if (s == itemCriticalIdeals){			
+	    computeCriticalIdeals();
+	    runCriticalIdeals();
+	}
+	else if (s == itemCriticalGroup){
+	    computeCriticalGroup();
+	    runCriticalGroup();
+	}    
+	else if (s == itemLaTex){
+			
+	    toLaTeX();
+	    runLaTeX();
+
+	}
+	else if (s == itemForbDigraph){
+	    computeForbD();
+	    runForbD();
+	}
+	else if (s == itemPython){
+			
+	    toPython();
+
+	}
         else if (s == itemGraph){
             itemGraph.setArmed(true);
             itemDigraph.setArmed(false);
