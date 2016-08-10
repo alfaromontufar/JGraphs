@@ -547,8 +547,8 @@ public class JGraphs extends JPanel
     public void computeCriticalIdeals(){
 	String dirName = "files";
 	File dir = new File (dirName);
-	String cadena = text.getText();
-	File archivo = new File(cadena+ ".sage");
+	String cadena = text.getText() + ".sage";
+	File archivo = new File(dir,cadena);
 	FileWriter file = null;
 	PrintWriter fout = null;
 	try{
@@ -713,10 +713,35 @@ public class JGraphs extends JPanel
                 System.out.println("evince ./files/" + cadena + ".pdf");
                 Runtime.getRuntime().exec("evince ./files/" + cadena + ".pdf");
             } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
-                System.out.println("Not implemented yet. In the future it will execute: pdflatex ./files/" + cadena + ".tex");
-                //String[] cmd = {"cmd.exe", "/c", "cd \"files\"", "pdflatex " + cadena + ".tex"};
+			
+				File archivo = new File("RunLatex.bat");
+				FileWriter file = null;
+				PrintWriter fout = null;
+				try{
+					file = new FileWriter(archivo);
+					fout = new PrintWriter(file);
+					fout.println("@echo off");
+					fout.println("cd /D files");
+					fout.println("pdflatex \"" + cadena + ".tex\"");
+					fout.println("start \"C:\\Program Files (x86)\\Adobe\\Reader 11.0\\Reader\\AcroRd32.exe\" \"" + cadena + ".pdf\"");
+					System.out.println("Created File: ./RunLatex.bat");			
+				}catch (Exception e) {
+					e.printStackTrace();
+				}finally {
+					try {
+						if (null != file)
+						file.close();
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+				}
+				System.out.println("Execute created file RunLatex.bat");
+				
+                //System.out.println("pdflatex ./files/" + cadena + ".tex");
+				//String[] cmd = {"cmd.exe", "/c", "RunLatex.bat"};
                 //Process p = Runtime.getRuntime().exec(cmd);
                 //p.waitFor();
+				//System.out.println("AcroRd32.exe ./files/" + cadena + ".pdf");
             } else if(osname.toLowerCase().indexOf("mac")!=-1){
                 System.out.println("pdflatex ./files/" + cadena + ".tex");
                 String[] cmd = {"/bin/sh", "-c", "cd ./files/ && pdflatex ./" + cadena + ".tex"};
