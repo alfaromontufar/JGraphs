@@ -722,8 +722,9 @@ public class JGraphs extends JPanel
 					fout = new PrintWriter(file);
 					fout.println("@echo off");
 					fout.println("cd /D files");
-					fout.println("pdflatex \"" + cadena + ".tex\"");
-					fout.println("start \"C:\\Program Files (x86)\\Adobe\\Reader 11.0\\Reader\\AcroRd32.exe\" \"" + cadena + ".pdf\"");
+					fout.println("pdflatex " + cadena + ".tex");
+					// fout.println("pdflatex -output-directory=C:\\Users\\Erdos\\Documents\\Projects\\JGraphs\\trunk\\files\\ C:\\Users\\Erdos\\Documents\\Projects\\JGraphs\\trunk\\files\\" + cadena + ".tex");
+					fout.println("start \"C:\\Program Files (x86)\\Adobe\\Reader 11.0\\Reader\\AcroRd32.exe\" " + cadena + ".pdf");
 					System.out.println("Created File: ./RunLatex.bat");			
 				}catch (Exception e) {
 					e.printStackTrace();
@@ -735,13 +736,16 @@ public class JGraphs extends JPanel
 						e2.printStackTrace();
 					}
 				}
-				System.out.println("Execute created file RunLatex.bat");
+				System.out.println("Please execute RunLatex.bat");
 				
-                //System.out.println("pdflatex ./files/" + cadena + ".tex");
-				//String[] cmd = {"cmd.exe", "/c", "RunLatex.bat"};
-                //Process p = Runtime.getRuntime().exec(cmd);
-                //p.waitFor();
-				//System.out.println("AcroRd32.exe ./files/" + cadena + ".pdf");
+                /*
+				System.out.println("pdflatex ./files/" + cadena + ".tex");
+				String[] cmd = {"cmd.exe", "RunLatex.bat"};
+                Process p = Runtime.getRuntime().exec(cmd);
+                int exitVal = p.waitFor();
+				System.out.println("Error value" + exitVal);
+				System.out.println("AcroRd32.exe ./files/" + cadena + ".pdf");
+				*/
             } else if(osname.toLowerCase().indexOf("mac")!=-1){
                 System.out.println("pdflatex ./files/" + cadena + ".tex");
                 String[] cmd = {"/bin/sh", "-c", "cd ./files/ && pdflatex ./" + cadena + ".tex"};
