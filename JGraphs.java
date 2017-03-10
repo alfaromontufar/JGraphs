@@ -28,9 +28,10 @@ public class JGraphs extends JPanel
     private JMenuItem itemPython = new JMenuItem("To Python");
     private JMenu menuCalcular = new JMenu("Compute");
     private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
+    private JMenuItem itemCriticalIdealsText = new JMenuItem("Critical Ideals (only text)");
     private JMenuItem itemCriticalGroup = new JMenuItem("Critical group");
     private JMenuItem itemForbDigraph = new JMenuItem("Forbidden Digraph");
-	private JMenuItem itemForbDigraphText = new JMenuItem("Forbidden Digraph (only text)");
+    private JMenuItem itemForbDigraphText = new JMenuItem("Forbidden Digraph (only text)");
     
     // Declaración de botones
     private JButton buttonV = new JButton("Vertex");
@@ -62,11 +63,13 @@ public class JGraphs extends JPanel
         menuMenu.add(menuCalcular);
         menuCalcular.add(itemCriticalIdeals);
         itemCriticalIdeals.addActionListener(this);
+	menuCalcular.add(itemCriticalIdealsText);
+	itemCriticalIdealsText.addActionListener(this);
 	menuCalcular.add(itemCriticalGroup);
         itemCriticalGroup.addActionListener(this);
         menuCalcular.add(itemForbDigraph);
         itemForbDigraph.addActionListener(this);
-		menuCalcular.add(itemForbDigraphText);
+	menuCalcular.add(itemForbDigraphText);
         itemForbDigraphText.addActionListener(this);
         add(barraMenu);
         
@@ -742,6 +745,71 @@ public class JGraphs extends JPanel
 	    }
 	}
     }
+
+    public void computeCriticalIdealsText(){
+	String dirName = "files";
+	File dir = new File (dirName);
+	String cadena = text.getText() + ".sage";
+	File archivo = new File(dir,cadena);
+	FileWriter file = null;
+	PrintWriter fout = null;
+	try{
+	    file = new FileWriter(archivo);
+	    fout = new PrintWriter(file);
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+	    fout.println("");
+	    fout.println("n = len(D)");
+	    //fout.println("R = PolynomialRing(ZZ,['x%s'%p for p in range(n)]);");
+	    fout.println("R = macaulay2.ring(\"ZZ\",\"[" + vars2string() + "]\").to_sage();");
+	    fout.println("R.inject_variables();");
+	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
+	    fout.println("file = open('" + cadena + ".txt', 'w')");
+	    fout.println("");
+	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("def Gamma():");
+	    fout.println("	for i in range(n+1):");
+	    fout.println("		I = R.ideal(Laplacian.minors(i))");
+	    fout.println("		if( I.is_one() == True ):");
+	    fout.println("			next");
+	    fout.println("		else:");
+	    fout.println("			return i-1");
+	    fout.println("	return n");
+	    fout.println("");
+	    fout.println("gamma = Gamma()");
+	    fout.println("");
+	    fout.println("def SNF():");
+	    fout.println("	L = - D.adjacency_matrix()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		L[i,i] = 0");
+	    fout.println("		for j in range(n):");
+	    fout.println("			if(j != i):");
+	    fout.println("				L[i,i] = L[i,i] - L[i,j]");
+	    fout.println("");
+	    fout.println("	list = []");
+	    fout.println("	S,L1,R = L.smith_form()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		if( S[i,i] != 0 ):");
+	    fout.println("			list.append(S[i,i])");
+	    fout.println("	return list ");
+	    fout.println("");
+	    fout.println("List = SNF()");
+	    fout.println("");
+	    fout.println("print('Smith Normal Form is ' + str(List) + '\\n')");
+	    fout.println("print('f_1 is ' + str(List.count(1)) + '\\n')");
+
+		
+	    System.out.println("Created File: ./" + cadena + ".sage");			
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
+    }
     
     public void runForbD() {
         
@@ -1118,6 +1186,10 @@ public class JGraphs extends JPanel
 	else if (s == itemCriticalIdeals){			
 	    computeCriticalIdeals();
 	    runCriticalIdeals();
+	}
+	else if (s == itemCriticalIdealsText){			
+	    computeCriticalIdealsText();
+	    runForbDText();
 	}
 	else if (s == itemCriticalGroup){
 	    computeCriticalGroup();
