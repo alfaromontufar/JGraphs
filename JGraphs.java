@@ -111,12 +111,41 @@ public class JGraphs extends JPanel
                 System.out.print( matriz[i][j] + (j==m-1? "\n" : " " ) );
     }
     
-    public static int[][] string2matrix(String cadena){
-        int ini = 1;
-        int fin = cadena.indexOf('}',ini);
+        public static int[][] string2matrix(String cadena){
+            int ini = 1;
+            int fin = cadena.indexOf('}',ini);
+            
+            String subcad = cadena.substring(cadena.indexOf('{',1)+1,fin);
+            int n = countOccurrencesOf(cadena,'{') - 1; // filas
+            int m = countOccurrencesOf(subcad,',') + 1; // columnas
+            int[][] matriz = new int [n][m];
+            
+            for(int j=0; j<n; j++){
+                int in = 0;
+                int fi;
+                for(int i=0; i<m; i++){
+                    if(i== m-1)
+                        fi = subcad.length();
+                    else
+                        fi = subcad.indexOf(',',in);
+                    matriz[j][i] = Integer.parseInt(subcad.substring(in,fi).replaceAll(" ",""));
+                    in = fi+1;
+                }
+                if(j<n-1){
+                    ini = cadena.indexOf('{',fin);
+                    fin = cadena.indexOf('}',ini);
+                    subcad = cadena.substring(ini+1,fin);
+                }
+            }
+            return matriz;
+        }
         
-        String subcad = cadena.substring(cadena.indexOf('{',1)+1,fin);
-        int n = countOccurrencesOf(cadena,'{') - 1; // filas
+    public static int[][] string2matrix2(String cadena){
+        int ini = 1;
+        int fin = cadena.indexOf(']',ini);
+        
+        String subcad = cadena.substring(cadena.indexOf('[',1)+1,fin);
+        int n = countOccurrencesOf(cadena,'[') - 1; // filas
         int m = countOccurrencesOf(subcad,',') + 1; // columnas
         int[][] matriz = new int [n][m];
         
@@ -132,8 +161,8 @@ public class JGraphs extends JPanel
                 in = fi+1;
             }
             if(j<n-1){
-                ini = cadena.indexOf('{',fin);
-                fin = cadena.indexOf('}',ini);
+                ini = cadena.indexOf('[',fin);
+                fin = cadena.indexOf(']',ini);
                 subcad = cadena.substring(ini+1,fin);
             }
         }
@@ -694,6 +723,14 @@ public class JGraphs extends JPanel
 	    fout.println("file = open('" + cadena + ".txt', 'w')");
 	    fout.println("");
 	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("def Gamma():");
+	    fout.println("	for i in range(n+1):");
+	    fout.println("		I = R.ideal(Laplacian.minors(i)).groebner_basis()");
+	    fout.println("		if( I[0] == True ):");
+	    fout.println("			next");
+	    fout.println("		else:");
+	    fout.println("			return i-1");
+	    fout.println("	return n");
 	    fout.println("");
 	    fout.println("def CriticalIdealsOnZZ():");
 	    fout.println("    Gamma = 0");
@@ -764,7 +801,15 @@ public class JGraphs extends JPanel
 	    fout.println("R.inject_variables();");
 	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
 	    fout.println("");
-	    fout.println("print(str(Laplacian) + '\\n')");
+	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("def Gamma():");
+	    fout.println("	for i in range(n+1):");
+	    fout.println("		I = R.ideal(Laplacian.minors(i)).groebner_basis()");
+	    fout.println("		if( I.is_one() == True ):");
+	    fout.println("			next");
+	    fout.println("		else:");
+	    fout.println("			return i-1");
+	    fout.println("	return n");
 	    fout.println("");
 	    fout.println("def CriticalIdealsOnZZ():");
 	    fout.println("    Gamma = 0");
@@ -1310,6 +1355,27 @@ public class JGraphs extends JPanel
                     nodo.y = (int) (200* Math.sin( ( (double) 2*Math.PI*j)/ (double) nodosize)) + cy;
                     
                     nodos.add(nodo);
+                }
+                repaint();
+            }else if(cadena.charAt(0)== '['){ // Desde Matriz
+                int [][] matriz = string2matrix2(cadena);
+                nodosize = matriz.length;
+                
+                int w=getSize ( ).width;
+                int h=getSize ( ).height;
+                cx = w/2;
+                cy = h/2;
+                nodos.clear();
+                
+                for(int j=0; j<nodosize; j++){
+                    Nodo nodo = new Nodo();
+                    nodo.x = (int) -(200* Math.cos( ( (double) 2*Math.PI*j)/ (double) nodosize)) + cx;
+                    nodo.y = (int) (200* Math.sin( ( (double) 2*Math.PI*j)/ (double) nodosize)) + cy;
+                    
+                    nodos.add(nodo);
+                    for(int k=0; k<nodosize; k++)
+                        if(matriz[j][k] != 0 && k != j)
+                            nodo.list.add(k);
                 }
                 repaint();
             }else if(cadena.charAt(0)== '{'){ // Desde Matriz
