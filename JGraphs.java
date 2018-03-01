@@ -1058,7 +1058,7 @@ public class JGraphs extends JPanel
 	    fout.println("R.inject_variables();");
 	    fout.println("Laplacian = diagonal_matrix(list(R.gens())) - D.adjacency_matrix()");
 	    fout.println("");
-	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("print(str(Laplacian) + '\\n')");
 	    fout.println("def Gamma():");
 	    fout.println("	for i in range(n+1):");
 	    fout.println("		I = R.ideal(Laplacian.minors(i)).groebner_basis()");
