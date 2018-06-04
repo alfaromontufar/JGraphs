@@ -376,8 +376,7 @@ public class JGraphs extends JPanel
                             if(graphtype == 1)
                                 fout.println("			\\draw  (" + i + ") edge[->] (" + nodos.get(i).list.get(j) + ");");
                             else
-                                if(nodos.get(i).list.get(j) > i)
-                                    fout.println("			\\draw  (" + i + ") edge (" + nodos.get(i).list.get(j) + ");");
+                                fout.println("			\\draw  (" + i + ") edge (" + nodos.get(i).list.get(j) + ");");
             
             fout.println("		\\end{tikzpicture}");
             fout.println("	\\end{center}");
