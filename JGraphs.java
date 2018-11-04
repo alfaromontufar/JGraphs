@@ -27,6 +27,7 @@ public class JGraphs extends JPanel
     private JMenuItem itemLaTex = new JMenuItem("To LaTeX");
     private JMenuItem itemPython = new JMenuItem("To Python");
     private JMenu menuCalcular = new JMenu("Compute");
+    private JMenuItem itemCharIdeals = new JMenuItem("Characteristic Ideals");
     private JMenuItem itemCriticalIdeals = new JMenuItem("Critical Ideals");
     private JMenuItem itemCriticalIdealsText = new JMenuItem("Critical Ideals (only text)");
     private JMenuItem itemCriticalGroup = new JMenuItem("Critical group");
@@ -61,6 +62,8 @@ public class JGraphs extends JPanel
         menuExportar.add(itemPython);
         itemPython.addActionListener(this);
         menuMenu.add(menuCalcular);
+        menuCalcular.add(itemCharIdeals);
+        itemCharIdeals.addActionListener(this);
         menuCalcular.add(itemCriticalIdeals);
         itemCriticalIdeals.addActionListener(this);
 	menuCalcular.add(itemCriticalIdealsText);
@@ -959,6 +962,85 @@ public class JGraphs extends JPanel
 	}
     }
     
+    public void computeCharIdeals(){
+	String dirName = "files";
+	File dir = new File (dirName);
+	String cadena = text.getText();
+	File archivo = new File(dir,cadena + ".sage");
+	FileWriter file = null;
+	PrintWriter fout = null;
+	try{
+	    file = new FileWriter(archivo);
+	    fout = new PrintWriter(file);
+	    fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+	    fout.println("");
+	    fout.println("n = D.order()");
+	    fout.println("R = macaulay2.ring(\"QQ\",'[x,y]').to_sage()");
+	    fout.println("R.inject_variables();");
+	    fout.println("Laplacian = diagonal_matrix([x for i in xrange(n)]) + D.adjacency_matrix()");
+	    fout.println("file = open('" + cadena + ".txt', 'w')");
+	    fout.println("");
+	    fout.println("file.write(str(Laplacian) + '\\n')");
+	    fout.println("def Beta():");
+	    fout.println("	for i in range(n+1):");
+	    fout.println("		I = R.ideal(Laplacian.minors(i)).groebner_basis()");
+	    fout.println("		if( I[0] == True ):");
+	    fout.println("			next");
+	    fout.println("		else:");
+	    fout.println("			return i-1");
+	    fout.println("	return n");
+	    fout.println("");
+	    fout.println("def CharIdealsOnZZ():");
+	    fout.println("    Gamma = 0");
+	    fout.println("    for i in range(n+1):");
+	    fout.println("        I = R.ideal(Laplacian.minors(i)).groebner_basis()");
+	    fout.println("        file.write(\"Char ideals of size \" + str(i) + '\\n')");
+	    fout.println("        file.write(str(I) + '\\n')");
+	    fout.println("        if I[0] == 1:");
+	    fout.println("            Gamma = i");
+	    fout.println("    file.write(\"gamma = \" + str(Gamma) + '\\n')");
+	    fout.println("");
+	    fout.println("CharIdealsOnZZ()");
+	    fout.println("");
+	    fout.println("def SNF():");
+	    fout.println("	L = - D.adjacency_matrix()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		L[i,i] = 0");
+	    fout.println("		for j in range(n):");
+	    fout.println("			if(j != i):");
+	    fout.println("				L[i,i] = L[i,i] - L[i,j]");
+	    fout.println("");
+	    fout.println("	list = []");
+	    fout.println("	S,L1,R = L.smith_form()");
+	    fout.println("	for i in range(n):");
+	    fout.println("		if( S[i,i] != 0 ):");
+	    fout.println("			list.append(S[i,i])");
+	    fout.println("	return list ");
+	    fout.println("");
+	    fout.println("List = SNF()");
+	    fout.println("");
+	    fout.println("file.write('Smith Normal Form is ' + str(List) + '\\n')");
+	    fout.println("file.write('f_1 is ' + str(List.count(1)) + '\\n')");
+	    fout.println("");
+	    fout.println("file.close()");
+	    fout.println("");
+	    fout.println("from subprocess import call");
+	    fout.println("call(['emacs','" + cadena + ".txt'])");
+	    fout.println("call(['open','" + cadena + ".txt'])");
+		
+	    System.out.println("Created File: ./" + cadena + ".sage");			
+	}catch (Exception e) {
+	    e.printStackTrace();
+	}finally {
+	    try {
+		if (null != file)
+		    file.close();
+	    } catch (Exception e2) {
+		e2.printStackTrace();
+	    }
+	}
+    }
+
     public void computeCriticalIdeals(){
 	String dirName = "files";
 	File dir = new File (dirName);
@@ -1305,7 +1387,7 @@ public class JGraphs extends JPanel
 			err.printStackTrace();
 		}			
     }
-    
+
     public void paintComponent (Graphics g) {
         super.paintComponent( g );
         
@@ -1485,7 +1567,11 @@ public class JGraphs extends JPanel
 	else if (s == buttonD){
 	    mainflag=3;
 	}
-	else if (s == itemCriticalIdeals){			
+        else if (s == itemCharIdeals){
+	    computeCharIdeals();
+            runCriticalIdeals();
+        }
+        else if (s == itemCriticalIdeals){			
 	    computeCriticalIdeals();
 	    runCriticalIdeals();
 	}
