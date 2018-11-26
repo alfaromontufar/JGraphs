@@ -397,6 +397,149 @@ public class JGraphs extends JPanel
         }
     }
 
+    public void computeForbChar (){ // Forbidden graphs for John project
+        String dirName = "files";
+        File dir = new File (dirName);
+        String cadena = text.getText();
+        File archivo = new File(dir,cadena + ".sage");
+        FileWriter file = null;
+        PrintWriter fout = null;
+        try{
+            file = new FileWriter(archivo);
+            fout = new PrintWriter(file);
+            
+			fout.println("# Forbidden graphs for characteristic ideals project");
+			fout.println("min_forbid5=[Graph('DCw', name = 'DCw'),");
+            fout.println(" Graph('DEw', name = 'DEw'),");
+            fout.println(" Graph('DEk', name = 'DEk'),");
+            fout.println(" Graph('DE{', name = 'DE{'),");
+            fout.println(" Graph('DQo', name = 'DQo'),");
+            fout.println(" Graph('DQw', name = 'DQw'),");
+            fout.println(" Graph('DU{', name = 'DU{'),");
+            fout.println(" Graph('DTw', name = 'DTw')]");
+			fout.println("min_forbid6=[Graph('E?bw', name = 'E?bw'),");
+			fout.println(" Graph('EC~o', name = 'EC~o'),");
+			fout.println(" Graph('EFzo', name = 'EFzo'),");
+			fout.println(" Graph('E]zw', name = 'E]zw')]");
+			fout.println("min_forbid7=[Graph('F]~~w', name ='F]~~w')]");
+            fout.println("min_forbid8=[Graph('G?~~~{', name ='G?~~~{')]");
+			fout.println("");
+			fout.println( "D = " + (graphtype == 0? "Graph(" : "DiGraph(") + graph2string() + ")" );
+			fout.println("file = open('" + cadena + ".txt', 'w')");
+			fout.println("");
+			fout.println("n = len(D)");
+			fout.println("");
+			fout.println("def FiveVertices(L):");
+			fout.println("	subD = D.subgraph(L)");
+			fout.println("	for F in min_forbid5:");
+			fout.println("		if(subD.is_isomorphic(F)):");
+			fout.println("			file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+			fout.println("			F.show()");
+			fout.println("			return True");
+			fout.println("	return False");
+			fout.println("");
+			fout.println("def SixVertices(L):");
+			fout.println("	subD = D.subgraph(L)");
+			fout.println("	for F in min_forbid6:");
+			fout.println("		if(subD.is_isomorphic(F)):");
+			fout.println("			file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+			fout.println("			F.show()");
+			fout.println("			return True");
+			fout.println("	for l in L:");
+			fout.println("		L1 = list(L)");
+			fout.println("		L1.remove(l)");
+			fout.println("		if(FiveVertices(L1)):");
+			fout.println("			return True");
+			fout.println("		return False");
+			fout.println("");
+			fout.println("def SevenVertices(L):");
+			fout.println("	subD = D.subgraph(L)");
+			fout.println("	for F in min_forbid7:");
+			fout.println("		if(subD.is_isomorphic(F)):");
+			fout.println("			file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+			fout.println("			F.show()");
+			fout.println("			return True");
+			fout.println("	for l in L:");
+			fout.println("		L1 = list(L)");
+			fout.println("		L1.remove(l)");
+			fout.println("		if(SixVertices(L1)):");
+			fout.println("			return True");
+			fout.println("	return False");
+			fout.println("");
+			fout.println("def EightVertices(L):");
+			fout.println("	subD = D.subgraph(L)");
+			fout.println("	for F in min_forbid8:");
+			fout.println("		if(subD.is_isomorphic(F)):");
+			fout.println("			file.write('Forbidden graph since contains ' + F.name() + ', with indices ' + str(L) + '\\n')");
+			fout.println("			F.show()");
+			fout.println("			return True");
+			fout.println("	for l in L:");
+			fout.println("		L1 = list(L)");
+			fout.println("		L1.remove(l)");
+			fout.println("		if(SevenVertices(L1)):");
+			fout.println("			return True");
+			fout.println("	return False");
+			fout.println("");
+			fout.println("def MoreThanEightVertices(L):");
+			fout.println("	subD = D.subgraph(L)");
+			fout.println("	if(len(L) == 9):");
+			fout.println("		for l in L:");
+			fout.println("			L1 = list(L)");
+			fout.println("			L1.remove(l)");
+			fout.println("			if(EightVertices(L1)):");
+			fout.println("				return True");
+			fout.println("	else:");
+			fout.println("		for l in L:");
+			fout.println("			L1 = list(L)");
+			fout.println("			L1.remove(l)");
+			fout.println("			if(MoreThanEightVertices(L1)):");
+			fout.println("				return True");
+			fout.println("	print('Something goes wrong! no graph in Forbbiden set is induced subgraph of graph.\\n')");
+			fout.println("	if(D.subgraph(L).is_connected()):");
+			fout.println("		file.write('Vertices ' + str(L) + ' induce a connected graph\\n')");
+			fout.println("	else:");
+			fout.println("		file.write('Vertices ' + str(L) + ' induce a disconnected graph\\n')");
+			fout.println("	return False");
+			fout.println("	return False");
+			fout.println("");
+			fout.println("def Forb():");
+			fout.println("	if(n == 5):");
+			fout.println("		if(FiveVertices(range(n)) == False):");
+			fout.println("			file.write('The graph has gamma < 4.\\n')");
+			fout.println("	elif(n == 6):");
+			fout.println("		if(SixVertices(range(n)) == False):");
+			fout.println("			file.write('The graph has gamma < 4.\\n')");
+			fout.println("	elif(n == 7):");
+			fout.println("		if(SevenVertices(range(n)) == False):");
+			fout.println("			file.write('The graph has gamma < 4.\\n')");
+			fout.println("	elif(n == 8):");
+			fout.println("		if(EightVertices(range(n)) == False):");
+			fout.println("			file.write('The graph has gamma < 4.\\n')");
+            fout.println("	elif(n > 8):");
+			fout.println("		if(MoreThanEightVertices(range(n)) == False):");
+			fout.println("			file.write('The graph has gamma < 4.\\n')");
+			fout.println("	else:");
+			fout.println("		file.write('The graph has gamma < 4, because it is too small.\\n')");
+			fout.println("");
+			fout.println("Forb()");
+			fout.println("");
+	    	fout.println("file.close()");
+			fout.println("");
+			fout.println("from subprocess import call");
+			fout.println("call(['emacs','" + cadena + ".txt'])");
+            
+        }catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (null != file)
+                    file.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
+
     public void computeForbMZ (){
         String dirName = "files";
         File dir = new File (dirName);
@@ -527,7 +670,6 @@ public class JGraphs extends JPanel
             }
         }
     }
-
 	
 	public void computeForbMZText (){
         String dirName = "files";
