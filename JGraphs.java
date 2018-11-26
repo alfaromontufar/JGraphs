@@ -1732,7 +1732,7 @@ public class JGraphs extends JPanel
 
 	}
 	else if (s == itemForbDigraph){
-	    computeForbMZ();
+	    computeForbChar ();
 	    runForbD();
 	}
 	else if (s == itemForbDigraphText){
