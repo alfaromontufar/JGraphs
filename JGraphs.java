@@ -1650,15 +1650,32 @@ public class JGraphs extends JPanel
 	try{
 	    String cadena = text.getText();
 	    String osname = System.getProperty("os.name");
-	    //System.out.println(osname);
-	    if(osname.toLowerCase().indexOf("mac")!=-1){
-		System.out.println("Usando mac");
-		String command = "sage " + cadena + ".sage";
-		//command = command.trim();
-		Runtime rt = Runtime.getRuntime();
-		Process proc = rt.exec( command );
-	    }
-	    Runtime.getRuntime().exec("sage ./" + cadena + ".sage");
+	    System.out.println(osname);
+	    if( osname.toLowerCase().compareTo("linux") == 0 ){
+                System.out.println("sage ./files/" + cadena + ".sage");
+                String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+                Process p = Runtime.getRuntime().exec(cmd);
+                p.waitFor();
+                System.out.println("emacs ./files/" + cadena + ".py");
+                //Runtime.getRuntime().exec("emacs ./files/" + cadena + ".py");
+            } else if ( osname.toLowerCase().indexOf("windows") != -1 ){
+                System.out.println("Not implemented yet. In the future it will execute: python ./files/" + cadena + ".py");
+            } else if(osname.toLowerCase().indexOf("mac")!=-1){
+                System.out.println("sage ./files/" + cadena + ".sage");
+                String[] cmd = {"/bin/sh", "-c", "cd ./files/ && sage ./" + cadena + ".sage"};
+                Process p = Runtime.getRuntime().exec(cmd);
+                //p.waitFor();
+                //System.out.println("emacs ./files/" + cadena + ".py");
+                //Runtime.getRuntime().exec("emacs ./files/" + cadena + ".py");
+            }
+	    // if(osname.toLowerCase().indexOf("mac")!=-1){
+	    // 	System.out.println("Usando mac");
+	    // 	String command = "sage " + cadena + ".sage";
+	    // 	//command = command.trim();
+	    // 	Runtime rt = Runtime.getRuntime();
+	    // 	Process proc = rt.exec( command );
+	    // }
+	    // Runtime.getRuntime().exec("sage ./" + cadena + ".sage");
 	    //Runtime.getRuntime().exec("notepad " + cadena + ".txt");
 	}
 	catch (Exception err) {
