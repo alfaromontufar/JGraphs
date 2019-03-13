@@ -1255,7 +1255,7 @@ public class JGraphs extends JPanel
 	    fout.println("n = D.order()");
 	    fout.println("R = macaulay2.ring(\"QQ\",'[x,y]').to_sage()");
 	    fout.println("R.inject_variables();");
-	    fout.println("Laplacian = diagonal_matrix([x for i in xrange(n)]) + D.adjacency_matrix()");
+	    fout.println("Laplacian = diagonal_matrix([x for i in xrange(n)]) - D.adjacency_matrix()");
 	    fout.println("file = open('" + cadena + ".txt', 'w')");
 	    fout.println("");
 	    fout.println("file.write(str(Laplacian) + '\\n')");
